@@ -1,0 +1,9 @@
+[book]
+authors = ["Night Cruising"]
+language = "zh"
+multilingual = false
+src = "src"
+title = "async in rust"
+
+[rust]
+edition = "2021"
