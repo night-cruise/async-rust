@@ -1,1 +1,35 @@
 # async-rust
+
+*这是一本电子书，旨在介绍 Rust 中 `async/await` 语法和异步运行时的原理和工作机制。*
+
+*This is an e-book which aims to introduce the theory and mechanism of `async/await` syntax and asynchronous runtime in the Rust.*
+
+
+
+## Build
+
+克隆：
+
+```
+git clone https://github.com/night-cruise/async-rust.git
+```
+
+使用 [mdbook](https://github.com/rust-lang/mdBook) 构建电子书：
+
+```
+mdbook build --release
+```
+
+
+
+## Todo
+
+* IO 模型
+* Epoll
+* 异步运行时
+
+
+
+## LICENSE
+
+这个项目使用 MIT 许可证，详细信息请查阅 [LICENSE](LICENSE) 文件。
