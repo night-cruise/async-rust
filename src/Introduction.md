@@ -23,3 +23,24 @@
 
 
 ## References
+
+* <https://rust-lang.github.io/async-book/03_async_await/01_chapter.html>
+* <https://www.zhihu.com/question/389262477/answer/1566255353>
+* <https://doc.rust-lang.org/std/keyword.async.html>
+* <https://doc.rust-lang.org/std/keyword.await.html>
+* <https://doc.rust-lang.org/std/future/trait.Future.html>
+* <https://cfsamson.github.io/books-futures-explained/1_futures_in_rust.html#futures-in-rust>
+* <https://doc.rust-lang.org/std/task/struct.Context.html>
+* <https://rust-lang.github.io/async-book/02_execution/02_future.html>
+* <https://github.com/ZhangHanDong/inviting-rust>
+* <https://doc.rust-lang.org/std/ops/trait.Generator.html>
+* <https://doc.rust-lang.org/std/ops/enum.GeneratorState.html>
+* <https://github.com/rust-lang/rust/blob/master/library/core/src/future/mod.rs>
+* <https://ipotato.me/article/70>
+* <https://cfsamson.github.io/books-futures-explained/4_generators_async_await.html>
+* <https://rust-lang.github.io/async-book/01_getting_started/04_async_await_primer.html>
+* <https://rust-lang.github.io/async-book/01_getting_started/02_why_async.html>
+* <https://cfsamson.github.io/books-futures-explained/5_pin.html>
+* <https://rust-lang.github.io/async-book/04_pinning/01_chapter.html>
+* <https://folyd.com/blog/rust-pin-unpin/>
+* <https://doc.rust-lang.org/core/pin/struct.Pin.html>
