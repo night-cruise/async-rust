@@ -1,6 +1,6 @@
 # Introduction
 
-本书主要介绍在 Rust 中 `async/await` 与 `async runtime` 的原理和工作机制，并不涉实际的异步代码编写。全书的内容主要分为以下几个章节：
+本书主要介绍 Rust 中 `async/await` 语法和异步运行时的原理和工作机制，并不涉实际的异步代码编写。全书的内容主要分为以下几个章节：
 
 * **异步编程**：介绍 Rust 异步编程的基础概念，以及在 Rust 中应用的异步模型。
 
@@ -10,15 +10,15 @@
 
   
 
-* **IO 模型**：介绍几种主要的 IO 模型，包括同步阻塞 IO、同步非阻塞 IO、IO 多路复用、异步 IO，其中 IO 多路复用是后文介绍 `Epoll` 的基础。
-
-
-
-* **Epoll**：介绍 `Epoll` 的工作原理并提供一个简单的 `Epoll` server 的实现例子。`Epoll` 是 Linux 中 IO 多路复用的一种实现，为后文介绍异步运行时的基础。
+* **IO 模型**：介绍几种主要的 IO 模型，包括阻塞 IO、非阻塞 IO、IO 多路复用和异步 IO，其中 IO 多路复用是后文介绍 `Epoll` 的基础。
 
   
 
-* **异步运行时**：通过实现一个简单的异步运行时来介绍 `Reactor`、`Waker`、`Executor` 的基本概念。
+* **Epoll**：介绍 `Epoll` 的工作原理并提供一个简单的 `Epoll` server 的实现例子。`Epoll` 是 Linux 中 IO 多路复用的一种实现，是后文介绍异步运行时的基础。
+
+  
+
+* **异步运行时**：通过实现一个简单的异步运行时来介绍 `Reactor`、`Waker`、`Executor`、`Task` 的基本概念。
 
 
 
@@ -43,4 +43,6 @@
 * <https://cfsamson.github.io/books-futures-explained/5_pin.html>
 * <https://rust-lang.github.io/async-book/04_pinning/01_chapter.html>
 * <https://folyd.com/blog/rust-pin-unpin/>
-* <https://doc.rust-lang.org/core/pin/struct.Pin.html>
+* <https://doc.rust-lang.org/std/pin/struct.Pin.html>
+* <https://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec2.html>
+* <https://www.cnblogs.com/alex3714/articles/5876749.html>

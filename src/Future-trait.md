@@ -24,9 +24,9 @@ pub trait Future {
 * `Poll::Pending`，表示这个 `Future` 还没计算完成
 * `Poll::Ready(val)`，表示这个 `Future` 计算完毕，并附带计算结果：`val`
 
-如果 `Future` 没有计算完成，例如想要等待一个 IO 事件发生，那么在 `poll` 方法体内，我们通常会调用传递给 `poll` 方法的 `Context` 的 `waker` 方法拿到一个 `Waker`（通常把 `Waker` 叫做唤醒器），然后注册这个 `Waker` 到一个事件通知系统中，最后返回 `Pending` 表示 `Future` 没有计算完成。
+如果 `Future` 没有计算完成，例如想要等待一个 IO 事件发生，那么在 `poll` 方法体内，我们通常会调用传递给 `poll` 方法的 `Context` 的 `waker` 方法拿到一个 `Waker`（通常把 `Waker` 叫做唤醒器），然后注册这个 `Waker` 到一个“事件通知系统”中，最后返回 `Pending` 表示 `Future` 没有计算完成。
 
-在未来某一时刻，`Future` 等待的 IO 事件就绪了，那么事件通知系统就会利用我们注册的 Waker 通过某种唤醒机制唤醒这个 `Future`，通过 `poll` 继续计算执行该 `Future`。
+在未来某一时刻，`Future` 等待的 IO 事件就绪了，那么“事件通知系统”就会利用我们注册的 Waker 通过某种唤醒机制唤醒这个 `Future`，通过 `poll` 继续计算执行该 `Future`。
 
 通过 `Waker` 唤醒器，我们可以只在 `Future` 想要等待的事件就绪时，才去唤醒 `Future`。这样我们就不需要通过一个死循环不断的调用 `poll` 方法来驱动 `Future` 的执行，这是异步编程之所以高效的关键所在。
 
@@ -36,7 +36,7 @@ pub trait Future {
 
 下面我们使用一个具体的例子来介绍 `Future trait` 的使用。
 
-假设我们准备读取一个 `socket`，但是它可能还有准备好数据。如果数据准备好了，我们就可以读取它然后然后返回 `Poll::Ready(data)`，但是如果数据没有准备好，我们可以注册一个唤醒器到事件通知系统中：
+假设我们准备读取一个 `socket`，但是它可能还有准备好数据。如果数据准备好了，我们就可以读取它然后然后返回 `Poll::Ready(data)`，但是如果数据没有准备好，我们可以注册一个唤醒器到“事件通知系统”中：
 
 ```rust,noplayground
 struct SocketRead<'a> {
@@ -59,7 +59,7 @@ impl<'a> Future for SocketRead<'a> {
 }
 ```
 
-代码中的 `REACTOR `就是前文中所提到过的事件通知系统。当 `socket` 中有数据可读时，`REACTOR `就会使用注册的 `Waker` 唤醒负责 `SocketRead `，然后调用 `poll` 方法再次计算该 `Future`。
+代码中的 `REACTOR `就是前文中所提到过的“事件通知系统”。当 `socket` 中有数据可读时，`REACTOR `就会使用注册的 `Waker` 唤醒负责 `SocketRead `，然后调用 `poll` 方法再次计算该 `Future`。
 
 
 
