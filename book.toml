@@ -1,9 +1,13 @@
 [book]
+title = "async in rust"
 authors = ["Night Cruising"]
+description = "A book which aims to introduce the theory and mechanism of async/await syntax and async runtime in the Rust."
 language = "zh"
 multilingual = false
 src = "src"
-title = "async in rust"
 
 [rust]
 edition = "2021"
+
+[output.html]
+git-repository-url = "https://github.com/night-cruise/async-rust"
