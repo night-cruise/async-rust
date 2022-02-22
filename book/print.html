@@ -1,0 +1,1637 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>async in rust</title>
+        <meta name="robots" content="noindex" />
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A book which aims to introduce the theory and mechanism of async/await syntax and async runtime in the Rust.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="异步编程.html"><strong aria-hidden="true">2.</strong> 异步编程</a></li><li class="chapter-item expanded "><a href="async-await.html"><strong aria-hidden="true">3.</strong> async/await</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="async-await的使用.html"><strong aria-hidden="true">3.1.</strong> async/await 的使用</a></li><li class="chapter-item expanded "><a href="Future-trait.html"><strong aria-hidden="true">3.2.</strong> Future trait</a></li><li class="chapter-item expanded "><a href="Generator.html"><strong aria-hidden="true">3.3.</strong> Generator</a></li><li class="chapter-item expanded "><a href="状态机.html"><strong aria-hidden="true">3.4.</strong> 状态机</a></li><li class="chapter-item expanded "><a href="Pin.html"><strong aria-hidden="true">3.5.</strong> Pin</a></li></ol></li><li class="chapter-item expanded "><a href="IO模型.html"><strong aria-hidden="true">4.</strong> IO 模型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="阻塞IO.html"><strong aria-hidden="true">4.1.</strong> 阻塞 IO</a></li><li class="chapter-item expanded "><a href="非阻塞IO.html"><strong aria-hidden="true">4.2.</strong> 非阻塞 IO</a></li><li class="chapter-item expanded "><a href="IO多路复用.html"><strong aria-hidden="true">4.3.</strong> IO 多路复用</a></li><li class="chapter-item expanded "><a href="异步IO.html"><strong aria-hidden="true">4.4.</strong> 异步 IO</a></li></ol></li><li class="chapter-item expanded "><a href="Epoll.html"><strong aria-hidden="true">5.</strong> Epoll</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Epoll介绍.html"><strong aria-hidden="true">5.1.</strong> Epoll 介绍</a></li><li class="chapter-item expanded "><a href="Epoll-server-example.html"><strong aria-hidden="true">5.2.</strong> Epoll server example</a></li></ol></li><li class="chapter-item expanded "><a href="异步运行时.html"><strong aria-hidden="true">6.</strong> 异步运行时</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">async in rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/night-cruise/async-rust" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<p>本书主要介绍 Rust 中 <code>async/await</code> 语法和异步运行时的原理和工作机制，并不涉实际的异步代码编写。全书的内容主要分为以下几个章节：</p>
+<ul>
+<li>
+<p><strong>异步编程</strong>：介绍 Rust 异步编程的基础概念，以及在 Rust 中应用的异步模型。</p>
+</li>
+<li>
+<p><strong>async/await</strong>：介绍Rust为支持异步编程而提供的语言层面的支持，包括 <code>async/await</code> 语法和它们的工作原理。</p>
+</li>
+<li>
+<p><strong>IO 模型</strong>：介绍几种主要的 IO 模型，包括阻塞 IO、非阻塞 IO、IO 多路复用和异步 IO，其中 IO 多路复用是后文介绍 <code>Epoll</code> 的基础。</p>
+</li>
+<li>
+<p><strong>Epoll</strong>：介绍 <code>Epoll</code> 的工作原理并提供一个简单的 <code>Epoll</code> server 的实现例子。<code>Epoll</code> 是 Linux 中 IO 多路复用的一种实现，是后文介绍异步运行时的基础。</p>
+</li>
+<li>
+<p><strong>异步运行时</strong>：通过实现一个简单的异步运行时来介绍 <code>Reactor</code>、<code>Waker</code>、<code>Executor</code>、<code>Task</code> 的基本概念。</p>
+</li>
+</ul>
+<h2 id="references"><a class="header" href="#references">References</a></h2>
+<ul>
+<li><a href="https://rust-lang.github.io/async-book/03_async_await/01_chapter.html">https://rust-lang.github.io/async-book/03_async_await/01_chapter.html</a></li>
+<li><a href="https://www.zhihu.com/question/389262477/answer/1566255353">https://www.zhihu.com/question/389262477/answer/1566255353</a></li>
+<li><a href="https://doc.rust-lang.org/std/keyword.async.html">https://doc.rust-lang.org/std/keyword.async.html</a></li>
+<li><a href="https://doc.rust-lang.org/std/keyword.await.html">https://doc.rust-lang.org/std/keyword.await.html</a></li>
+<li><a href="https://doc.rust-lang.org/std/future/trait.Future.html">https://doc.rust-lang.org/std/future/trait.Future.html</a></li>
+<li><a href="https://cfsamson.github.io/books-futures-explained/1_futures_in_rust.html#futures-in-rust">https://cfsamson.github.io/books-futures-explained/1_futures_in_rust.html#futures-in-rust</a></li>
+<li><a href="https://doc.rust-lang.org/std/task/struct.Context.html">https://doc.rust-lang.org/std/task/struct.Context.html</a></li>
+<li><a href="https://rust-lang.github.io/async-book/02_execution/02_future.html">https://rust-lang.github.io/async-book/02_execution/02_future.html</a></li>
+<li><a href="https://github.com/ZhangHanDong/inviting-rust">https://github.com/ZhangHanDong/inviting-rust</a></li>
+<li><a href="https://doc.rust-lang.org/std/ops/trait.Generator.html">https://doc.rust-lang.org/std/ops/trait.Generator.html</a></li>
+<li><a href="https://doc.rust-lang.org/std/ops/enum.GeneratorState.html">https://doc.rust-lang.org/std/ops/enum.GeneratorState.html</a></li>
+<li><a href="https://github.com/rust-lang/rust/blob/master/library/core/src/future/mod.rs">https://github.com/rust-lang/rust/blob/master/library/core/src/future/mod.rs</a></li>
+<li><a href="https://ipotato.me/article/70">https://ipotato.me/article/70</a></li>
+<li><a href="https://cfsamson.github.io/books-futures-explained/4_generators_async_await.html">https://cfsamson.github.io/books-futures-explained/4_generators_async_await.html</a></li>
+<li><a href="https://rust-lang.github.io/async-book/01_getting_started/04_async_await_primer.html">https://rust-lang.github.io/async-book/01_getting_started/04_async_await_primer.html</a></li>
+<li><a href="https://rust-lang.github.io/async-book/01_getting_started/02_why_async.html">https://rust-lang.github.io/async-book/01_getting_started/02_why_async.html</a></li>
+<li><a href="https://cfsamson.github.io/books-futures-explained/5_pin.html">https://cfsamson.github.io/books-futures-explained/5_pin.html</a></li>
+<li><a href="https://rust-lang.github.io/async-book/04_pinning/01_chapter.html">https://rust-lang.github.io/async-book/04_pinning/01_chapter.html</a></li>
+<li><a href="https://folyd.com/blog/rust-pin-unpin/">https://folyd.com/blog/rust-pin-unpin/</a></li>
+<li><a href="https://doc.rust-lang.org/std/pin/struct.Pin.html">https://doc.rust-lang.org/std/pin/struct.Pin.html</a></li>
+<li><a href="https://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec2.html">https://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec2.html</a></li>
+<li><a href="https://www.cnblogs.com/alex3714/articles/5876749.html">https://www.cnblogs.com/alex3714/articles/5876749.html</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="异步编程"><a class="header" href="#异步编程">异步编程</a></h1>
+<p>为了避免歧义，本书中的异步编程特指在 Rust 中使用 <code>async/await</code> 关键字进行编写异步代码。</p>
+<p>通过 <code>async</code> 关键字创建的异步函数或者异步块会返回一个实现了 <code>Future</code> trait 的类型，其本质上是一个协程对象。将 <code>async/await</code> 关键字和异步运行时结合使用就可以实现对多个协程对象的调度执行，从而达到并发执行的效果。</p>
+<p>在 Rust 中主要应用的是 进程—线程—协程 异步模型，如下所示：</p>
+<pre><code>    +------------------------------------------------------------------+
+    |                                                                  |
+    |    +--------------------------------------------------------+    |
+    |    |                                                        |    |
+    |    |   +-------------------------------------------------+  |    |
+    |    |   | +------------+ +----------+ +--------------+    |  |    |
+    |    |   | | coroutine  | | coroutine| |  coroutine   |    |  |    |
+    |    |   + +------------+ +----------+ +--------------+    |  |    |
+    |    |   |                                                 |  |    |
+    |    |   +-------------------------------------------------+  |    |
+    |    |                                                        |    |
+    |    | thread                                                 |    |
+    |    +--------------------------------------------------------+    |
+    |                                                                  |
+    |                                                                  |
+    |    +--------------------------------------------------------+    |
+    |    |                                                        |    |
+    |    |   +-------------------------------------------------+  |    |
+    |    |   | +------------+ +----------+ +--------------+    |  |    |
+    |    |   | | coroutine  | | coroutine| |  coroutine   |    |  |    |
+    |    |   + +------------+ +----------+ +--------------+    |  |    |
+    |    |   |                                                 |  |    |
+    |    |   +-------------------------------------------------+  |    |
+    |    |                                                        |    |
+    |    | thread                                                 |    |
+    |    +--------------------------------------------------------+    |
+    |                                                                  |
+    | process                                                          |
+    +------------------------------------------------------------------+
+</code></pre>
+<p>下层是进程，进程是持有资源的最小单位；中层是线程，线程不持有资源，是<code>CPU</code>调度的最小单位；上层是协程，协程既不持有资源、也不在意<code>CPU</code>的调度，它仅仅关注的是“协作式的、自然的流程切换”。</p>
+<p>异步运行时就负责调度执行上述的协程对象。例如在一个协程在等待 IO 时，这个协程会主动出让自己的执行权给异步运行时，这时异步运行时可以调度运行其他的协程，从而最大化地利用CPU时间片。在 IO 密集型的应用中，异步编程将能够极大地提高执行效率。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="asyncawait"><a class="header" href="#asyncawait">async/await</a></h1>
+<p>在 <code>fn</code>、<code>closure</code>、<code>block</code>前使用 <code>async</code> 关键字，会将标记的代码转化为一个 <code>Future</code>。因此，<code>async</code> 标记的代码不会立即运行，只有在 <code>Future</code> 上调用 <code>.await</code> 时才会计算运行 <code>Future</code>。而在 <code>await</code> 一个 <code>Future</code> 时，会暂停当前函数的执行，直到 <code>executor</code> 完成对该 <code>Future</code> 的计算。</p>
+<p>以上是对 <code>async/await</code> 语义的基本介绍。在本章中，我们将会更加深入地介绍 <code>async/await</code> 的使用和它们的底层原理。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="asyncawait-的使用"><a class="header" href="#asyncawait-的使用">async/await 的使用</a></h1>
+<p><code>async/await </code>是 Rust 中特殊的语法，它使得让出当前线程的控制权而不阻塞线程成为可能，从而允许在等待一个操作完成时可以运行其他代码。</p>
+<p>有两种主要的方式使用 <code>async</code>：<code>async fn</code> 和 <code>async {}</code>。这两中使用方式都会返回一个实现了 <code>Future trait</code> 的值：</p>
+<pre><code class="language-rust noplayground">// `foo()` 返回一个实现了 `Future&lt;Output = u8&gt;` 的类型。
+// `foo().await` 将会产生一个 u8 类型的值。
+async fn foo() -&gt; u8 { 5 }
+
+fn bar() -&gt; impl Future&lt;Output = u8&gt; {
+    // 这个 `async` 块会产生一个实现了 `Future&lt;Output = u8&gt;` 的类型。
+    async {
+        let x: u8 = foo().await;
+        x + 5
+    }
+}
+
+</code></pre>
+<p><code>async fn</code> 和 <code>async {}</code> 返回的 <code>Future</code> 是惰性的：在真正开始运行之前它什么也不会做。运行一个 <code>Future</code> 的最普遍的方式是 <code>await</code> 这个 <code>Future</code>： <code>Future.await</code>。</p>
+<p>当 <code>await</code> 一个 <code>Future</code> 时，会暂停当前函数的运行，直到完成对 <code>Future</code> 的运行。如果这个 <code>Future</code> 被阻塞住了（例如等待网络IO），它会让出当前线程的控制权。当 <code>Future</code> 中的阻塞操作就绪时（例如等待的网络IO返回了响应），<code>executor</code> 会通过 <code>poll</code> 会恢复 <code>Future</code> 的运行。</p>
+<h2 id="async-lifetime"><a class="header" href="#async-lifetime">async lifetime</a></h2>
+<p>与普通的函数不一样，<code>async fn</code> 会获取引用或其他非静态生命周期的参数，然后返回被这些参数的生命周期约束的 <code>Future</code>：</p>
+<pre><code class="language-rust noplayground">async fn foo(x: &amp;u8) -&gt; u8 { *x }
+
+// 这与上面的函数完全等价
+fn foo_expanded&lt;'a&gt;(x: &amp;'a u8) -&gt; impl Future&lt;Output = u8&gt; + 'a {
+    async move { *x }
+}
+</code></pre>
+<p>这意味着，<code>async fn</code> 返回的 <code>Future</code> 必须在非静态生命周期参数仍然有效时 <code>.await</code>。在大多数情况下，我们在调用 <code>async</code> 函数后会立马 <code>.await</code>（例如 <code>foo(&amp;x).await</code>），因此 <code>async lifetime</code> 不会对执行产生什么影响。但是，如果我们存储这种 <code>Future</code> 或者发送给其他的 <code>task</code> 或者 <code>thread</code>，就可能会造成问题。</p>
+<p>把带有引用参数的 <code>async fn</code> 转化为静态 <code>Future</code> 的解决方法是：把参数和对 <code>async fn</code> 的调用封装到 <code>async</code> 块中：</p>
+<pre><code class="language-rust noplayground">fn bad() -&gt; impl Future&lt;Output = u8&gt; {
+    let x = 5;
+    borrow_x(&amp;x) // ERROR: `x` does not live long enough
+}
+
+fn good() -&gt; impl Future&lt;Output = u8&gt; {
+    async {
+        let x = 5;
+        borrow_x(&amp;x).await
+    }
+}
+</code></pre>
+<p>通过把参数移动到 <code>async</code> 块中，我们把它的生命周期扩展到了匹配调用 <code>good</code> 返回的 <code>Future</code> 的生命周期。</p>
+<h2 id="async-move"><a class="header" href="#async-move">async move</a></h2>
+<p><code>async</code> 块和闭包允许像普通闭包那样使用 <code>move</code> 关键字。一个 <code>async move</code> 块会获取变量的所有权，但是这会导致无法与其他的代码共享这些变量：</p>
+<pre><code class="language-rust noplayground">// 不同的 async 块可以访问相同的变量s，只要它们都在s的作用域范围内执行
+async fn blocks() {
+    let s = String::new(&quot;Hello World&quot;);
+    let future_one = async {
+        println!(&quot;{:?}&quot;, s);
+    }
+    let future_two = async {
+        println!(&quot;{:?}&quot;, s);
+    }
+    
+    executor::join(future_one, future_two);
+}
+
+// s 被 move 进行 async 块中，因此只能在该 async 块内才能访问 
+fn move_block() -&gt; impl Future&lt;Output = ()&gt; {
+    let s = String::new(&quot;Hello World&quot;);
+    async move {
+        println!(&quot;{:?}&quot;, s);
+    }
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="future-trait"><a class="header" href="#future-trait">Future trait</a></h1>
+<p>在前文中，我们提到使用 <code>async</code> 标记的 <code>fn</code>、<code>block</code>、<code>closure</code> 都会返回一个 <code>Future</code>，本节将会详细地介绍 <code>Future</code> 的概念。</p>
+<p>在标准库中，<code>Future</code> 的定义如下所示：</p>
+<pre><code class="language-rust noplayground">pub trait Future {
+    type Output;	// Future计算完成时产生的值的类型
+    fn poll(self: Pin&lt;&amp;mut Self&gt;, cx: &amp;mut Context&lt;'_&gt;) -&gt; Poll&lt;Self::Output&gt;;
+}
+</code></pre>
+<p><code>Future</code> 表示一个异步计算，或者说会在未来完成计算的操作。<code>Future</code> 的核心是 <code>poll</code> 方法，当调用 <code>poll</code> 方法时会尝试计算 <code>Future</code> 得到最终的值。如果值还没有准备好（例如等待某些事件发生），则此方法不会阻塞，而是会直接返回一个结果表示 <code>Future</code> 还没有计算完毕。</p>
+<blockquote>
+<p>注意：<code>Future trait</code> 中涉及到的 <code>Pin</code> 将会在后面的章节中介绍。</p>
+</blockquote>
+<h2 id="poll"><a class="header" href="#poll">poll</a></h2>
+<p>在上面对 <code>Future</code> 的介绍中，我们简要提到了 <code>poll</code> 方法，下面我们会对 <code>poll</code> 方法进行更详细的介绍。当调用 <code>Future</code> 的 <code>poll</code> 方法时会返回一个枚举类型的值：</p>
+<ul>
+<li><code>Poll::Pending</code>，表示这个 <code>Future</code> 还没计算完成</li>
+<li><code>Poll::Ready(val)</code>，表示这个 <code>Future</code> 计算完毕，并附带计算结果：<code>val</code></li>
+</ul>
+<p>如果 <code>Future</code> 没有计算完成，例如想要等待一个 IO 事件发生，那么在 <code>poll</code> 方法体内，我们通常会调用传递给 <code>poll</code> 方法的 <code>Context</code> 的 <code>waker</code> 方法拿到一个 <code>Waker</code>（通常把 <code>Waker</code> 叫做唤醒器），然后注册这个 <code>Waker</code> 到一个“事件通知系统”中，最后返回 <code>Pending</code> 表示 <code>Future</code> 没有计算完成。</p>
+<p>在未来某一时刻，<code>Future</code> 等待的 IO 事件就绪了，那么“事件通知系统”就会利用我们注册的 Waker 通过某种唤醒机制唤醒这个 <code>Future</code>，通过 <code>poll</code> 继续计算执行该 <code>Future</code>。</p>
+<p>通过 <code>Waker</code> 唤醒器，我们可以只在 <code>Future</code> 想要等待的事件就绪时，才去唤醒 <code>Future</code>。这样我们就不需要通过一个死循环不断的调用 <code>poll</code> 方法来驱动 <code>Future</code> 的执行，这是异步编程之所以高效的关键所在。</p>
+<h2 id="小栗子"><a class="header" href="#小栗子">小栗子</a></h2>
+<p>下面我们使用一个具体的例子来介绍 <code>Future trait</code> 的使用。</p>
+<p>假设我们准备读取一个 <code>socket</code>，但是它可能还有准备好数据。如果数据准备好了，我们就可以读取它然后然后返回 <code>Poll::Ready(data)</code>，但是如果数据没有准备好，我们可以注册一个唤醒器到“事件通知系统”中：</p>
+<pre><code class="language-rust noplayground">struct SocketRead&lt;'a&gt; {
+	socket: &amp;'a Socket
+}
+
+impl&lt;'a&gt; Future for SocketRead&lt;'a&gt; {
+	type Output = Vec&lt;u8&gt;;
+	
+	fn poll(self: Pin&lt;&amp;mut Self&gt;, cx: &amp;mut Context&lt;'_'&gt;) -&gt; Poll&lt;Self::Output&gt; {
+		let data = self.socket.no_block_read::&lt;Option&lt;Vec&lt;u8&gt;&gt;&gt;(1024);
+		match data {
+			Some(data) =&gt; Poll::Ready(data),
+			None =&gt; {
+				REACTOR.registe_waker_and_event(self.socket, Type::Read, cx.waker().clone());
+				Poll::Pending
+			}
+		}
+	}
+}
+</code></pre>
+<p>代码中的 <code>REACTOR </code>就是前文中所提到过的“事件通知系统”。当 <code>socket</code> 中有数据可读时，<code>REACTOR </code>就会使用注册的 <code>Waker</code> 唤醒负责 <code>SocketRead </code>，然后调用 <code>poll</code> 方法再次计算该 <code>Future</code>。</p>
+<h2 id="leaf--non-leaf-future"><a class="header" href="#leaf--non-leaf-future">Leaf / Non-leaf Future</a></h2>
+<p>在前文中我们提到使用 <code>async</code> 关键字可以创建一个 <code>Future</code> 类型，而在上面的小栗子中我们通过实现 <code>Future trait</code> 的方式也创建了一个 <code>Future</code> 类型，那么这两个 <code>Future</code> 有什么区别呢？</p>
+<h3 id="leaf-future"><a class="header" href="#leaf-future">Leaf Future</a></h3>
+<p>通过为我们的自定义类型实现 <code>Future trait</code> 的方式创建的 <code>Future</code> 被称为 <code>Leaf Future</code>。例如上面的小栗子中的 <code>SocketRead</code> 类型：</p>
+<pre><code class="language-rust noplayground">struct SocketRead&lt;'a&gt; {
+	socket: &amp;'a Socket
+}
+
+impl&lt;'a&gt; Future for SocketRead&lt;'a&gt; {
+	/
+}
+</code></pre>
+<p><code>Leaf Future</code> 中通常会涉及到对 IO 的操作，例如从一个 <code>socket</code> 中读取数据，并且对 IO 的操作是非阻塞式的。</p>
+<p>当调用异步运行时提供的异步读 <code>socket</code> 的方法时就会返回上述的 <code>Future</code>：</p>
+<pre><code class="language-rust noplayground">impl async_runtime {
+	fn read_socket(&amp;self) -&gt; SocketRead {
+		// ...
+	}
+}
+
+let mut leaf_future: SocketRead = async_runtime.read_socket();
+</code></pre>
+<p>通常情况下，这些 <code>Leaf Future</code> 都是由异步运行时自己创建的，用户只需要使用 <code>async/await</code> 关键字即可。</p>
+<h3 id="non-leaf-future"><a class="header" href="#non-leaf-future">Non-leaf Future</a></h3>
+<p><code>Non-leaf Future</code> 是我们使用 <code>async</code> 关键字创建 <code>Future</code>，并且会由 <code>async runtime</code> 来调度运行。</p>
+<p>在 <code>Non-leaf Future</code> 中可以创建多个 <code>Leaf Future</code>， 并且通过 <code>await</code> <code>Leaf Future</code> 来完成对 IO 的操作：</p>
+<pre><code class="language-rust noplayground">let non_leaf_future = async {
+	let data = async_runtime.read_socket().await;
+	println!(&quot;Receive data: {:?}&quot;, data);
+	
+	let data = async_runtime.read_socket().await;
+	println!(&quot;Receive data: {:?}&quot;, data);
+	
+	let data = async_runtime.read_socket().await;
+	println!(&quot;Receive data: {:?}&quot;, data);
+}
+</code></pre>
+<p>在 <code>await</code> 一个 <code>Leaf Future</code> 时，如果返回的是 <code>Pending</code>，那么<code>Non-Leaf Future</code> 就会让出对当前线程的控制权，此时 <code>async runtime</code> 就能够调度执行其他的 <code>Non-Leaf Future</code> 。当 <code>Non-Leaf Future</code> 中的 IO 操作就绪时，<code>async runtime</code> 就会重新激活挂起的 <code>Future</code>，在<strong>上次离开的地方继续运行</strong>。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="generator"><a class="header" href="#generator">Generator</a></h1>
+<p><code>Future</code> 的底层依赖于生成器，因此在本节中我们将会介绍生成器的概念，以及生成器是如何转化为 <code>Future</code> 的。</p>
+<h2 id="generator-定义"><a class="header" href="#generator-定义">Generator 定义</a></h2>
+<p><code>Generator</code> 的定义位于标准库的 <code>ops</code> 模块中，具体如下所示：</p>
+<pre><code class="language-rust noplayground">pub trait Generator&lt;R = ()&gt; {
+    type Yield;
+    type Return;
+    fn resume(
+        self: Pin&lt;&amp;mut Self&gt;, 
+        arg: R
+    ) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt;;
+}
+
+pub enum GeneratorState&lt;Y, R&gt; {
+    Yielded(Y),
+    Complete(R),
+}
+</code></pre>
+<p><code>Generator</code> 通常也被称为协程，主要目的是为 <code>async/await</code> 语法提供构建块，但是未来也可能会扩展到为 <code>Iterator</code> 和其他类型提供符合人体工程学的定义。</p>
+<p><code>Generator</code> 的关联类型 <code>Yield</code> 对应于使用<code>yield</code> 表达式产出的值的类型。</p>
+<p><code>Generator</code> 的关联类型 <code>Return</code> 对应于使用 <code>return</code> 语句或者生成器中的最后一个表达式返回的值的类型。</p>
+<blockquote>
+<p>注意：<code>Generator trait</code> 中涉及到的 <code>Pin</code> 将会在后面的章节中介绍。</p>
+</blockquote>
+<h2 id="resume"><a class="header" href="#resume">resume</a></h2>
+<p>调用 <code>Generator</code> 的 <code>resume</code> 方法会恢复生成器的运行，如果还没有启动生成器的话则会启动生成器。</p>
+<p>在执行生成器的过程中，如果遇到 <code>yield</code> 表达式，那么生成器就会在这个 <code>yield</code> 点挂起，并产出 <code>yield</code> 表达式的值：<code>GeneratorState::Yielded(Y)</code>。当再次调用 <code>resume</code> 方法时生成器就会在挂起的 <code>yield</code> 点恢复运行。</p>
+<p>在运行过程中，如果遇到的是 <code>return</code> 语句或者生成器末尾的最后一个表达式，那么生成器执行完毕，并返回 <code>GeneratorState::Complete(R)</code>，<code>R</code> 就是 <code>return</code> 语句或者末尾表达式的值。</p>
+<p>如果生成器已经执行完毕，返回了 <code>GeneratorState::Complete</code>，那么当再次调用 <code>Generator</code> 的 <code>resume</code> 方法时将会导致 <code>panic</code>。</p>
+<h2 id="generator-使用"><a class="header" href="#generator-使用">Generator 使用</a></h2>
+<p>在闭包中使用 <code>yield</code> 关键字就可以创建一个生成器：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
+
+use std::pin::Pin;
+use std::ops::{Generator, GeneratorState};
+
+
+fn main() {
+    let mut gen = || {
+        let mut i = 1;
+        while i &lt; 10 {
+            yield i;
+            i += 1;
+        }
+        
+        return ();
+    };
+    
+    loop {
+        match Pin::new(&amp;mut gen).resume(()) {
+            GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+            GeneratorState::Complete(r) =&gt; {
+                println!(&quot;Complete: {:?}&quot;, r);
+                break;
+            }
+        }
+    }
+}
+</code></pre></pre>
+<p>通过为自定义类型实现 <code>Generator trait</code> 来创建生成器：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
+
+use std::pin::Pin;
+use std::ops::{Generator, GeneratorState};
+
+
+fn main() {
+    let mut gen = MyGenerator { i: 1, completed: false };
+    
+    loop {
+        match Pin::new(&amp;mut gen).resume(()) {
+            GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+            GeneratorState::Complete(r) =&gt; {
+                println!(&quot;Complete: {:?}&quot;, r);
+                break;
+            }
+        }
+    }
+}
+
+
+struct MyGenerator {
+    i: i32,
+    completed: bool
+}
+
+
+impl&lt;R&gt; Generator&lt;R&gt; for MyGenerator {
+    type Yield = i32;
+    type Return = ();
+    
+    fn resume(self: Pin&lt;&amp;mut Self&gt;, _arg: R) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt; {
+        if self.completed {
+            panic!(&quot;MyGenerator has been completed.&quot;);
+        }
+        
+        let i = self.i;
+        if i &lt; 10 {
+            self.get_mut().i = i + 1;
+            GeneratorState::Yielded(i)
+        } else {
+            self.get_mut().completed = true;
+            GeneratorState::Complete(())
+        }
+    }
+}
+</code></pre></pre>
+<p>把生成器当作迭代器使用：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
+
+use std::pin::Pin;
+use std::iter::Iterator;
+use std::ops::{Generator, GeneratorState};
+
+
+fn main() {
+    let gen = MyGenerator { i: 1, completed: false };
+    
+    for val in gen {
+        println!(&quot;Got: {}&quot;, val);
+    }
+
+}
+
+
+struct MyGenerator {
+    i: i32,
+    completed: bool
+}
+
+
+impl&lt;R&gt; Generator&lt;R&gt; for MyGenerator {
+    type Yield = i32;
+    type Return = ();
+    
+    fn resume(self: Pin&lt;&amp;mut Self&gt;, _arg: R) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt; {
+        if self.completed {
+            panic!(&quot;MyGenerator has been completed.&quot;);
+        }
+        
+        let i = self.i;
+        if i &lt; 10 {
+            self.get_mut().i = i + 1;
+            GeneratorState::Yielded(i)
+        } else {
+            self.get_mut().completed = true;
+            GeneratorState::Complete(())
+        }
+    }
+}
+
+impl Iterator for MyGenerator {
+    type Item = i32;
+    
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {
+        match Pin::new(self).resume(()) {
+            GeneratorState::Yielded(y) =&gt; Some(y),
+            GeneratorState::Complete(_) =&gt; None
+        }
+    }
+}
+</code></pre></pre>
+<h2 id="from-generator-to-future"><a class="header" href="#from-generator-to-future">From Generator to Future</a></h2>
+<p>Rust 的 <code>core</code> 库中的 <code>future</code> 模块定义了将生成器转化为 <code>Future</code> 的函数（为了便于阅读去掉了注释部分）：</p>
+<pre><code class="language-rust noplayground">pub const fn from_generator&lt;T&gt;(gen: T) -&gt; impl Future&lt;Output = T::Return&gt;
+	where T: Generator&lt;ResumeTy, Yield = ()&gt;
+{
+    struct GenFuture&lt;T: Generator&lt;ResumeTy, Yield = ()&gt;&gt;(T);
+
+    impl&lt;T: Generator&lt;ResumeTy, Yield = ()&gt;&gt; !Unpin for GenFuture&lt;T&gt; {}
+
+    impl&lt;T: Generator&lt;ResumeTy, Yield = ()&gt;&gt; Future for GenFuture&lt;T&gt; {
+        type Output = T::Return;
+        
+        fn poll(self: Pin&lt;&amp;mut Self&gt;, cx: &amp;mut Context&lt;'_&gt;) -&gt; Poll&lt;Self::Output&gt; {
+            let gen = unsafe { Pin::map_unchecked_mut(self, |s| &amp;mut s.0) };
+   
+            match gen.resume(ResumeTy(NonNull::from(cx).cast::&lt;Context&lt;'static&gt;&gt;())) {
+                GeneratorState::Yielded(()) =&gt; Poll::Pending,
+                GeneratorState::Complete(x) =&gt; Poll::Ready(x),
+            }
+        }
+    }
+
+    GenFuture(gen)
+}
+</code></pre>
+<p>从源码中可以看出，实际上我们使用 <code>async</code> 创建的 <code>Future</code> 是一个实现了 <code>Future trait</code> 的结构体 <code>GenFuture</code>，这个结构体的内部是一个生成器。</p>
+<p>在我们调用 <code>Future</code> 的 <code>poll</code> 方法时，实际上就是在调用底层的生成器的 <code>resume</code> 方法，并且生成器返回的 <code>GeneratorState::Yielded/Complete(val)</code> 会被分别转化为 <code>poll</code> 的返回类型：<code>Poll::Pending/Ready(val)</code>。</p>
+<h2 id="小栗子-1"><a class="header" href="#小栗子-1">小栗子</a></h2>
+<p>在本节的最后，我们通过一个小栗子把前面讲的 <code>async/await</code>、<code>Future</code>、<code>Generator</code> 的知识串联起来。</p>
+<p>有如下的代码：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[inline(never)]
+async fn foo() -&gt; i32 {
+    10
+}
+
+#[inline(never)]
+async fn bar() -&gt; i32 {
+    foo().await
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p><a href="https://rustc-dev-guide.rust-lang.org/hir.html">HIR</a> 是 Rust 代码编译的中间产物，可以帮助我们直到代码在脱糖后是什么样子。可以使用 Rust <code>Playground</code> 的 <code>HIR</code> 功能编译上述代码，结果如下：</p>
+<pre><code class="language-rust noplayground">#[inline(never)]
+async fn foo()
+    -&gt;
+        /*impl Trait*/ #[lang = &quot;from_generator&quot;](move |mut _task_context|
+        { { let _t = { 10 }; _t } })
+
+#[inline(never)]
+async fn bar()
+    -&gt;
+        /*impl Trait*/ #[lang = &quot;from_generator&quot;](move |mut _task_context|
+        {
+                {
+                        let _t =
+                            {
+                                    match #[lang = &quot;into_future&quot;](foo()) {
+                                            mut pinned =&gt;
+                                                loop {
+                                                        match unsafe {
+                                                                            #[lang = &quot;poll&quot;](#[lang = &quot;new_unchecked&quot;](&amp;mut pinned),
+                                                                                #[lang = &quot;get_context&quot;](_task_context))
+                                                                        } {
+                                                                #[lang = &quot;Ready&quot;] { 0: result } =&gt; break result,
+                                                                #[lang = &quot;Pending&quot;] {} =&gt; { }
+                                                            }
+                                                        _task_context = (yield ());
+                                                    },
+                                        }
+                                };
+                        _t
+                    }
+            })
+</code></pre>
+<p>原生的 <code>HIR</code> 代码难以阅读，我们将其转化为下面的 Rust 伪代码：</p>
+<pre><code class="language-rust noplayground">#[inline(never)]
+async fn foo() -&gt; impl Future&lt;Output = i32&gt; {
+    from_generator(move |mut _task_context| {
+        let _t = 10;
+        _t
+    })
+}
+
+#[inline(never)]
+async fn bar() -&gt; impl Future&lt;Output = i32&gt; {
+    from_generator(move |mut _task_context| {
+        let _t = {
+            match into_future(foo()) {
+                mut pinned =&gt; {
+                    loop {
+                        match unsafe Pin::new_unchecked(&amp;mut pinned).poll(get_context(_task_context)) {
+                            Poll::Ready(result) =&gt; break result,
+                            Poll::Pending =&gt; {}
+                        }
+                        _task_context = (yield ());
+                    }
+                }
+            }
+        };
+        _t
+    })
+}
+</code></pre>
+<p>可以看到 <code>async</code> 函数体内的代码被转化成了一个生成器，然后再调用 <code>from_generator</code> 函数传入生成器创建一个 <code>Future</code> ，这与我们上面介绍的 <code>from_generator</code> 函数的功能一致。</p>
+<p><code>await</code> 部分则被转化为了一个无限循环，在循环的内部会调用 <code>await</code> 的 <code>Future</code> 的 <code>poll</code> 方法，如果结果是 <code>Poll::Ready</code>，则终止循环并返回 <code>result</code>，继续执行剩余的代码；如果结果是 <code>Poll::Pending</code>，则会使用 <code>yield</code> 挂起生成器，将控制权转移给调用方。当调用方激活这个挂起的生成器时，生成器就会恢复运行，执行循环体中的代码。</p>
+<p>因此，只有当 <code>await</code> 的 <code>Future</code> 执行完毕时，才会继续往下执行 <code>async</code> 块中的代码，这样就确保了能够以同步的方式编写异步代码，让我们能拥有良好的开发体验。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="状态机"><a class="header" href="#状态机">状态机</a></h1>
+<p>在上一节中，我们讲到生成器执行到 <code>yield</code> 表达式时，会在这个 <code>yield</code> 点挂起，当再次激活生成器时会在挂起的 <code>yield</code> 点恢复运行，那么生成器是怎么保存在 <code>yield</code> 点挂起时的状态呢？</p>
+<p>事实上，编译器会把生成器转化为一个状态机，状态机中会保存每一个 <code>yield</code> 点的生成器的执行状态。</p>
+<p>假如我们写了一个如下所示的生成器：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
+
+use std::pin::Pin;
+use std::ops::{Generator, GeneratorState};
+
+fn main() {
+    let mut gen = || {
+        yield 1;
+        yield 2;
+        
+        ()
+    };
+    
+    loop {
+        match Pin::new(&amp;mut gen).resume(()) {
+            GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+            GeneratorState::Complete(c) =&gt; {
+                println!(&quot;Complete: {:?}&quot;, c);
+                break;
+            }
+        }
+    }
+}
+</code></pre></pre>
+<p>编译器会把生成器转化为下面的代码：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
+
+use std::pin::Pin;
+use std::ops::{Generator, GeneratorState};
+
+fn main() {
+    let mut gen = Gen::new();
+    
+    loop {
+        match Pin::new(&amp;mut gen).resume(()) {
+            GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+            GeneratorState::Complete(c) =&gt; {
+                println!(&quot;Complete: {:?}&quot;, c);
+                break;
+            }
+        }
+    }
+}
+
+enum Gen {
+    Enter,
+    State1(State1),
+    State2(State2),
+    Exit
+}
+
+struct State1 {
+    _x: i32
+}
+
+struct State2 {
+    _x: i32
+}
+
+impl&lt;R&gt; Generator&lt;R&gt; for Gen {
+    type Yield = i32;
+    type Return = ();
+    
+    fn resume(self: Pin&lt;&amp;mut Self&gt;, _arg: R) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt; {
+        let mut_gen = self.get_mut();
+        match std::mem::replace(mut_gen, Gen::Exit) {
+            Gen::Enter =&gt; {
+                *mut_gen = Gen::State1(State1 { _x: 1 });
+                GeneratorState::Yielded(1)
+            }
+            Gen::State1(_) =&gt; {
+                *mut_gen = Gen::State2(State2 { _x: 2 });
+                GeneratorState::Yielded(2)
+            }
+            Gen::State2(_) =&gt; {
+                *mut_gen = Gen::Exit;
+                GeneratorState::Complete(())
+            }
+            Gen::Exit =&gt; panic!(&quot;Generator has been completed.&quot;)
+        }
+    }
+}
+
+impl Gen {
+    fn new() -&gt; Self {
+        Self::Enter
+    }
+}
+</code></pre></pre>
+<p>同时，由于每个 <code>async</code> 函数最终都会生成一个状态机，并且每个可执行文件都会捆绑一个异步运行时，这会导致异步的 Rust 代码在编译后产生更大的二进制体积，这也是 <code>async</code> Rust 的一个小缺点。</p>
+<blockquote>
+<p>小知识：基于状态机实现的协程，也被称为无栈协程，这与有栈协程相对应。</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="pin"><a class="header" href="#pin">Pin</a></h1>
+<p>前文的 <code>Future trait</code>、<code>Geneartor</code> 和状态机中都出现了 <code>Pin</code>，那么 <code>Pin</code> 到底有什么用呢？ 在本节中，我们将会详细地介绍它。</p>
+<h2 id="自引用结构"><a class="header" href="#自引用结构">自引用结构</a></h2>
+<p>在 Safe Rust 中，我们无法创建自引用结构体：</p>
+<pre><pre class="playground"><code class="language-rust compile_fail edition2021">fn main() {
+    let s = &quot;Hello World&quot;.to_string();
+    let _ = SelfReference {
+        a: s,
+        b: &amp;s
+    };
+}
+
+struct SelfReference&lt;'a&gt; {
+	a: String,
+	b: &amp;'a String
+}
+</code></pre></pre>
+<p>如果编译，将会发生报错：</p>
+<pre><code class="language-rust noplayground">error[E0382]: borrow of moved value: `s`
+ --&gt; src/main.rs:5:12
+  |
+2 |     let s = &quot;Hello World&quot;.to_string();
+  |         - move occurs because `s` has type `String`, which does not implement the `Copy` trait
+3 |     let _ = SelfReference {
+4 |         a: s,
+  |            - value moved here
+5 |         b: &amp;s
+  |            ^^ value borrowed here after move
+</code></pre>
+<p>这是因为 <code>s</code> 已经发生了 <code>move</code>，因此 <code>b</code> 就不能借用已经 <code>move</code> 了的 <code>s</code>。</p>
+<p>为了创建自引用结构，我们需要使用裸指针：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">fn main() {
+    let mut sr_1 = SelfReference::new(&quot;Hello&quot;);
+    sr_1.init();
+    
+    let mut sr_2 = SelfReference::new(&quot;World&quot;);
+    sr_2.init();
+    
+    println!(&quot;sr_1: {{ a: {}, b: {} }}&quot;, sr_1.get_a(), sr_1.get_b());
+    println!(&quot;sr_2: {{ a: {}, b: {} }}&quot;, sr_2.get_a(), sr_2.get_b());
+}
+
+#[derive(Debug)]
+struct SelfReference {
+	a: String,
+	b: *const String
+}
+
+impl SelfReference {
+    fn new(msg: &amp;str) -&gt; Self {
+        Self {
+            a: msg.to_string(),
+            b: std::ptr::null()
+        }
+    }
+    
+    fn init(&amp;mut self) {
+        let ptr_to_a = &amp;self.a as *const _;
+        self.b = ptr_to_a;
+    }
+    
+    fn get_a(&amp;self) -&gt; &amp;str {
+        &amp;self.a
+    }
+    
+    fn get_b(&amp;self) -&gt; &amp;str {
+        unsafe {
+            &amp;*self.b
+        }
+    }
+}
+</code></pre></pre>
+<p>编译运行，结果如下所示：</p>
+<pre><code class="language-rust noplayground">sr_1: { a: Hello, b: Hello }
+sr_2: { a: World, b: World }
+</code></pre>
+<p>接下来，让我们交换 <code>sr_1</code> 和 <code>sr_2</code> 的内存位置的数据，即 <code>sr_1</code> 和 <code>sr_2</code> 互相 <code>move</code> 给对方：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">fn main() {
+    let mut sr_1 = SelfReference::new(&quot;Hello&quot;);
+    sr_1.init();
+    
+    let mut sr_2 = SelfReference::new(&quot;World&quot;);
+    sr_2.init();
+    
+    println!(&quot;Before swap:&quot;);
+    println!(&quot;sr_1: {{ a: {}, b: {} }}&quot;, sr_1.get_a(), sr_1.get_b());
+    println!(&quot;sr_2: {{ a: {}, b: {} }}&quot;, sr_2.get_a(), sr_2.get_b());
+    
+    std::mem::swap(&amp;mut sr_1, &amp;mut sr_2);
+    println!(&quot;\nAfter swap:&quot;);
+    println!(&quot;sr_1: {{ a: {}, b: {} }}&quot;, sr_1.get_a(), sr_1.get_b());
+    println!(&quot;sr_2: {{ a: {}, b: {} }}&quot;, sr_2.get_a(), sr_2.get_b());
+}
+
+<span class="boring">#[derive(Debug)]
+</span><span class="boring">struct SelfReference {
+</span><span class="boring">	 a: String,
+</span><span class="boring">	 b: *const String
+</span><span class="boring">}
+</span><span class="boring">impl SelfReference {
+</span><span class="boring">   fn new(msg: &amp;str) -&gt; Self {
+</span><span class="boring">       Self {
+</span><span class="boring">           a: msg.to_string(),
+</span><span class="boring">           b: std::ptr::null()
+</span><span class="boring">       }
+</span><span class="boring">   } 
+</span><span class="boring">   fn init(&amp;mut self) {
+</span><span class="boring">       let ptr_to_a = &amp;self.a as *const _;
+</span><span class="boring">       self.b = ptr_to_a;
+</span><span class="boring">   }   
+</span><span class="boring">   fn get_a(&amp;self) -&gt; &amp;str {
+</span><span class="boring">       &amp;self.a
+</span><span class="boring">   }    
+</span><span class="boring">   fn get_b(&amp;self) -&gt; &amp;str {
+</span><span class="boring">       unsafe {
+</span><span class="boring">           &amp;*self.b
+</span><span class="boring">       }
+</span><span class="boring">   }
+</span><span class="boring">}
+</span></code></pre></pre>
+<p>编译运行，结果如下所示：</p>
+<pre><code class="language-rust noplayground">Before swap:
+sr_1: { a: Hello, b: Hello }
+sr_2: { a: World, b: World }
+
+After swap:
+sr_1: { a: World, b: Hello }
+sr_2: { a: Hello, b: World }
+</code></pre>
+<p>可以看出，在交换 <code>sr_1</code> 和 <code>sr_2</code>  后，字段 <code>a</code> 的数据也发生了交换，但是字段 <code>b</code> 的数据没有改变，仍然指向之前的位置，如图所示：</p>
+<p><img src="imgs/swap_problem.jpg" alt="swap problem" /></p>
+<p>这意味着，<code>sr</code>（<code>sr_1</code>、<code>sr_2</code>）将不再是自引用结构体，并保存了一个指向其他对象的裸指针。因此，<code>sr</code> 的字段 <code>b</code> 的生命周期将不再和其结构体本身相关联，我们将难以保证 <code>sr.b</code> 指针不会变成悬垂指针。</p>
+<p>在上面的例子中，由于使用 <code>swap</code> 函数导致出现了我们不想要的结果，在后续的代码中对 <code>sr</code> 的使用很可能会出现段错误、UB 等其他类型的错误。</p>
+<h2 id="lets-pin-it"><a class="header" href="#lets-pin-it">Let's pin it!</a></h2>
+<p>Rust 是一门极为注重内存安全的语言，为了能够安全地使用自引用结构，Rust 发明了 <code>Pin</code>。</p>
+<h3 id="pin-1"><a class="header" href="#pin-1">Pin</a></h3>
+<p><code>Pin</code> 位于 <code>std</code> 库的 <code>pin</code> 模块中，源代码定义如下所示：</p>
+<pre><code class="language-rust noplayground">#[stable(feature = &quot;pin&quot;, since = &quot;1.33.0&quot;)]
+#[lang = &quot;pin&quot;]
+#[fundamental]
+#[repr(transparent)]
+#[derive(Copy, Clone)]
+pub struct Pin&lt;P&gt; {
+    pointer: P,
+}
+
+#[stable(feature = &quot;pin&quot;, since = &quot;1.33.0&quot;)]
+impl&lt;P: Deref&gt; Deref for Pin&lt;P&gt; {
+    type Target = P::Target;
+    fn deref(&amp;self) -&gt; &amp;P::Target {
+        Pin::get_ref(Pin::as_ref(self))
+    }
+}
+
+#[stable(feature = &quot;pin&quot;, since = &quot;1.33.0&quot;)]
+impl&lt;P: DerefMut&lt;Target: Unpin&gt;&gt; DerefMut for Pin&lt;P&gt; {
+    fn deref_mut(&amp;mut self) -&gt; &amp;mut P::Target {
+        Pin::get_mut(Pin::as_mut(self))
+    }
+}
+</code></pre>
+<p><code>Pin</code> 实现了 <code>Deref</code> 和 <code>DerefMut</code> <code>trait</code>，因此 <code>Pin</code> 是一个智能指针。并且 <code>Pin</code> 的内部包裹了另一个指针 <code>P</code>，因此我们一般使用 <code>Pin&lt;P&lt;T&gt;&gt;</code> 的方式来表示一个 <code>Pin</code> 结构（<code>T</code> 是指针 <code>P</code> 指向的类型）。</p>
+<p>既然有 <code>Pin</code>，那么自然就有 <code>Unpin</code>，那么 <code>Unpin</code> 是什么呢？<code>Unpin</code> 是一个 <code>auto trait</code>，编译器会默认为所有的类型实现 <code>Unpin</code>，除非这些类型实现了 <code>!Unpin</code>。</p>
+<p>要想获取 <code>Pin&lt;P&lt;T&gt;&gt;</code> 中 <code>T</code> 的可变引用 <code>&amp;mut T</code>，可以使用 <code>Pin</code> 提供的 <code>get_mut</code> 方法，这也是 <code>Pin</code> 提供的 <code>api</code> 中<strong>唯一</strong>可以<strong>安全地</strong>获取 <code>&amp;mut T</code> 的方法，其函数签名如下所示：</p>
+<pre><code class="language-rust noplayground">pub fn get_mut(self) -&gt; &amp;'a mut T
+where
+    T: Unpin,
+</code></pre>
+<p>发现了吗？要想安全地拿到 <code>&amp;mut T</code>，<code>T</code> 就必须实现 <code>Unpin</code>。如果 <code>T</code> 实现了 <code>!Unpin</code>，那么就不可能安全地拿到 <code>T</code> 的可变引用，我们自然也就无法使用 <code>std::mem::swap(x: &amp;mut T, y: &amp;mut T)</code> 等类似的函数 <code>move</code> <code>T</code>，就不会发生前文的例子中出现的未定义行为。</p>
+<p>因此，<code>Pin&lt;P&lt;T&gt;&gt;</code> 利用 Rust 的类型系统保证：如果 <code>T</code> 实现了 <code>!Unpin</code>，那么就不可能在 Safe Rust 中获取 <code>T</code> 的可变引用。相反，如果 <code>T</code> 实现了 <code>Unpin</code>，那么 <code>Pin</code> 就仅仅是对 <code>P&lt;T&gt;</code> 的一层包装，我么可以随意地拿到 <code>&amp;mut T</code>。</p>
+<p>接下来，我们将会使用 <code>Pin</code> 解决上面的那个例子中出现的问题。</p>
+<h3 id="pin-to-stack"><a class="header" href="#pin-to-stack">Pin to stack</a></h3>
+<p><code>Pin</code> 到栈上是指 <code>Pin</code> 的那个指针在栈上面，使用 <code>Pin::new_unchecked</code> 函数即可把指针 <code>Pin</code> 到栈上去：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(negative_impls)]
+use std::pin::Pin;
+
+fn main() {
+    let mut sr_1 = SelfReference::new(&quot;Hello&quot;);
+    let mut sr_1 = unsafe { Pin::new_unchecked(&amp;mut sr_1) };
+    sr_1.as_mut().init();
+    
+    let mut sr_2 = SelfReference::new(&quot;World&quot;);
+    let mut sr_2 = unsafe { Pin::new_unchecked(&amp;mut sr_2) };
+    sr_2.as_mut().init();
+    
+    println!(&quot;Before swap:&quot;);
+    println!(&quot;sr_1: {{ a: {}, b: {} }}&quot;, sr_1.as_ref().get_a(), sr_1.as_ref().get_b());
+    println!(&quot;sr_2: {{ a: {}, b: {} }}&quot;, sr_2.as_ref().get_a(), sr_2.as_ref().get_b());
+    
+    println!(&quot;If we want to swap:&quot;);
+    std::mem::swap(sr_1.get_mut(), sr_2.get_mut());
+}
+
+#[derive(Debug)]
+struct SelfReference {
+	a: String,
+	b: *const String
+}
+
+impl !Unpin for SelfReference {}
+
+impl SelfReference {
+    fn new(msg: &amp;str) -&gt; Self {
+        Self {
+            a: msg.to_string(),
+            b: std::ptr::null()
+        }
+    }
+    
+    fn init(self: Pin&lt;&amp;mut Self&gt;) {
+        let ptr_to_a = &amp;self.a as *const _;
+        unsafe {
+            self.get_unchecked_mut().b = ptr_to_a;
+        }
+    }
+    
+    fn get_a(self: Pin&lt;&amp;Self&gt;) -&gt; &amp;str {
+        &amp;self.get_ref().a
+    }
+    
+    fn get_b(self: Pin&lt;&amp;Self&gt;) -&gt; &amp;str {
+        unsafe {
+            &amp;*self.b
+        }
+    }
+}
+</code></pre></pre>
+<p>此时代码将不会通过编译：</p>
+<pre><code class="language-rust noplayground">error[E0277]: `SelfReference` cannot be unpinned
+   --&gt; src/main.rs:18:25
+    |
+18  |     std::mem::swap(sr_1.get_mut(), sr_2.get_mut());
+    |                         ^^^^^^^ the trait `Unpin` is not implemented for `SelfReference`
+    |
+    = note: consider using `Box::pin`
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
+
+error[E0277]: `SelfReference` cannot be unpinned
+   --&gt; src/main.rs:18:41
+    |
+18  |     std::mem::swap(sr_1.get_mut(), sr_2.get_mut());
+    |                                         ^^^^^^^ the trait `Unpin` is not implemented for `SelfReference`
+    |
+    = note: consider using `Box::pin`
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
+</code></pre>
+<p>这说明当我们把 <code>&amp;mut SelfReference</code> <code>Pin</code> 到栈上之后，无法通过 <code>get_mut</code> 方法拿到 <code>&amp;mut SelfReference</code>，那么自然就无法使用 <code>swap</code> 函数，在编译阶段就保证了不会出现内存安全问题。</p>
+<p><code>Pin::new_unchecked</code> 是一个 <code>unsafe</code> 函数，这是因为<strong>需要使用者自己遵守约定</strong>只使用 <code>Pin</code> 提供的 <code>api</code> 来获取并使用可变引用。</p>
+<p>假如使用者提前 <code>drop</code> 掉 <code>Pin</code>，这样就可以直接获取 <code>T</code> 的可变引用，仍然会导致内存安全问题：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(negative_impls)]
+use std::pin::Pin;
+
+fn main() {
+    let mut sr_1 = SelfReference::new(&quot;Hello&quot;);
+    let mut sr_1_pin = unsafe { Pin::new_unchecked(&amp;mut sr_1) };
+    sr_1_pin.as_mut().init();
+    
+    let mut sr_2 = SelfReference::new(&quot;World&quot;);
+    let mut sr_2_pin = unsafe { Pin::new_unchecked(&amp;mut sr_2) };
+    sr_2_pin.as_mut().init();
+    
+    println!(&quot;Before swap:&quot;);
+    println!(&quot;sr_1: {{ a: {}, b: {} }}&quot;, sr_1_pin.as_ref().get_a(), sr_1_pin.as_ref().get_b());
+    println!(&quot;sr_2: {{ a: {}, b: {} }}&quot;, sr_2_pin.as_ref().get_a(), sr_2_pin.as_ref().get_b());
+    
+    drop(sr_1_pin);
+    drop(sr_2_pin);
+    
+
+    println!(&quot;\nAfter swap:&quot;);
+    std::mem::swap(&amp;mut sr_1, &amp;mut sr_2);
+    
+    let sr_1_pin = unsafe { Pin::new_unchecked(&amp;mut sr_1) };
+    let sr_2_pin = unsafe { Pin::new_unchecked(&amp;mut sr_2) };
+    println!(&quot;sr_1: {{ a: {}, b: {} }}&quot;, sr_1_pin.as_ref().get_a(), sr_1_pin.as_ref().get_b());
+    println!(&quot;sr_2: {{ a: {}, b: {} }}&quot;, sr_2_pin.as_ref().get_a(), sr_2_pin.as_ref().get_b());
+}
+<span class="boring">#[derive(Debug)]
+</span><span class="boring">struct SelfReference {
+</span><span class="boring">	a: String,
+</span><span class="boring">	b: *const String
+</span><span class="boring">}
+</span><span class="boring">impl !Unpin for SelfReference {}
+</span><span class="boring">impl SelfReference {
+</span><span class="boring">   fn new(msg: &amp;str) -&gt; Self {
+</span><span class="boring">       Self {
+</span><span class="boring">           a: msg.to_string(),
+</span><span class="boring">           b: std::ptr::null()
+</span><span class="boring">       }
+</span><span class="boring">   }    
+</span><span class="boring">   fn init(self: Pin&lt;&amp;mut Self&gt;) {
+</span><span class="boring">       let ptr_to_a = &amp;self.a as *const _;
+</span><span class="boring">       unsafe {
+</span><span class="boring">           self.get_unchecked_mut().b = ptr_to_a;
+</span><span class="boring">       }
+</span><span class="boring">   }
+</span><span class="boring">   fn get_a(self: Pin&lt;&amp;Self&gt;) -&gt; &amp;str {
+</span><span class="boring">       &amp;self.get_ref().a
+</span><span class="boring">   }   
+</span><span class="boring">   fn get_b(self: Pin&lt;&amp;Self&gt;) -&gt; &amp;str {
+</span><span class="boring">       unsafe {
+</span><span class="boring">           &amp;*self.b
+</span><span class="boring">       }
+</span><span class="boring">   }
+</span><span class="boring">}    
+</span></code></pre></pre>
+<p>编译运行，将会出现和之前的例子中一样的问题：</p>
+<pre><code class="language-rust noplayground">Before swap:
+sr_1: { a: Hello, b: Hello }
+sr_2: { a: World, b: World }
+
+After swap:
+sr_1: { a: World, b: Hello }
+sr_2: { a: Hello, b: World }
+</code></pre>
+<h3 id="pin-to-heap"><a class="header" href="#pin-to-heap">Pin to heap</a></h3>
+<p><code>Pin</code> 到堆上是指 <code>Pin</code> 的那个指针在堆上面，使用<code>Box::pin</code> 函数即可把指针 <code>Pin</code> 到堆上去：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(negative_impls)]
+use std::pin::Pin;
+
+fn main() {
+    let mut sr_1 = SelfReference::new(&quot;Hello&quot;);
+    let mut sr_2 = SelfReference::new(&quot;World&quot;);
+    
+    println!(&quot;Before swap:&quot;);
+    println!(&quot;sr_1: {{ a: {}, b: {} }}&quot;, sr_1.as_ref().get_a(), sr_1.as_ref().get_b());
+    println!(&quot;sr_2: {{ a: {}, b: {} }}&quot;, sr_2.as_ref().get_a(), sr_2.as_ref().get_b());
+    
+    println!(&quot;If we want to swap:&quot;);
+    std::mem::swap(sr_1.as_mut().get_mut(), sr_2.as_mut().get_mut());
+    
+}
+
+#[derive(Debug)]
+struct SelfReference {
+	a: String,
+	b: *const String
+}
+
+impl !Unpin for SelfReference {}
+
+impl SelfReference {
+    fn new(msg: &amp;str) -&gt; Pin&lt;Box&lt;Self&gt;&gt; {
+        let sr = Self {
+            a: msg.to_string(),
+            b: std::ptr::null()
+        };
+        let mut boxed = Box::pin(sr);
+        let ptr_to_a = &amp;boxed.a as *const _;
+        unsafe {
+            boxed.as_mut().get_unchecked_mut().b = ptr_to_a;
+        }
+        
+        boxed
+    }
+    
+    fn get_a(self: Pin&lt;&amp;Self&gt;) -&gt; &amp;str {
+        &amp;self.get_ref().a
+    }
+    
+    fn get_b(self: Pin&lt;&amp;Self&gt;) -&gt; &amp;str {
+        unsafe {
+            &amp;*self.b
+        }
+    }
+}
+</code></pre></pre>
+<p>此时代码将不会通过编译：</p>
+<pre><code class="language-rust noplayground">error[E0277]: `SelfReference` cannot be unpinned
+   --&gt; src/main.rs:13:34
+    |
+13  |     std::mem::swap(sr_1.as_mut().get_mut(), sr_2.as_mut().get_mut());
+    |                                  ^^^^^^^ the trait `Unpin` is not implemented for `SelfReference`
+    |
+    = note: consider using `Box::pin`
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
+
+error[E0277]: `SelfReference` cannot be unpinned
+   --&gt; src/main.rs:13:59
+    |
+13  |     std::mem::swap(sr_1.as_mut().get_mut(), sr_2.as_mut().get_mut());
+    |                                                           ^^^^^^^ the trait `Unpin` is not implemented for `SelfReference`
+    |
+    = note: consider using `Box::pin`
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
+</code></pre>
+<p><code>Pin</code> 到堆上的优点是不需要使用者编写 <code>unsafe</code> 函数来构造 <code>Pin</code>，也不需要使用者自己遵守约定只使用 <code>Pin</code> 提供的 <code>api</code> 来获取可变引用，因为 <code>Pin</code> 到堆上后，用户只能使用 <code>Pin&lt;Box&lt;T&gt;&gt;</code>；缺点是 <code>Pin</code> 到堆上会有额外的性能开销。</p>
+<h2 id="pin-and-async"><a class="header" href="#pin-and-async">Pin and async</a></h2>
+<p>在前文中我们给出了 <code>Future</code> 和 <code>Generator</code> 的定义：</p>
+<pre><code class="language-rust noplayground">pub trait Future {
+    type Output;	
+    fn poll(self: Pin&lt;&amp;mut Self&gt;, cx: &amp;mut Context&lt;'_&gt;) -&gt; Poll&lt;Self::Output&gt;;
+}
+
+pub trait Generator&lt;R = ()&gt; {
+    type Yield;
+    type Return;
+    fn resume(
+        self: Pin&lt;&amp;mut Self&gt;, 
+        arg: R
+    ) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt;;
+}
+</code></pre>
+<p>还有将 <code>Generator</code> 转化为 <code>Future</code> 的函数：</p>
+<pre><code class="language-rust noplayground">pub const fn from_generator&lt;T&gt;(gen: T) -&gt; impl Future&lt;Output = T::Return&gt;
+    where T: Generator&lt;ResumeTy, Yield = ()&gt;
+{
+    struct GenFuture&lt;T: Generator&lt;ResumeTy, Yield = ()&gt;&gt;(T);
+
+    impl&lt;T: Generator&lt;ResumeTy, Yield = ()&gt;&gt; !Unpin for GenFuture&lt;T&gt; {}
+
+    impl&lt;T: Generator&lt;ResumeTy, Yield = ()&gt;&gt; Future for GenFuture&lt;T&gt; {
+        type Output = T::Return;
+        
+        fn poll(self: Pin&lt;&amp;mut Self&gt;, cx: &amp;mut Context&lt;'_&gt;) -&gt; Poll&lt;Self::Output&gt; {
+            let gen = unsafe { Pin::map_unchecked_mut(self, |s| &amp;mut s.0) };
+   
+            match gen.resume(ResumeTy(NonNull::from(cx).cast::&lt;Context&lt;'static&gt;&gt;())) {
+                GeneratorState::Yielded(()) =&gt; Poll::Pending,
+                GeneratorState::Complete(x) =&gt; Poll::Ready(x),
+            }
+        }
+    }
+
+    GenFuture(gen)
+}
+</code></pre>
+<p>可以看到要调用 <code>Future</code> 的 <code>Poll</code> 方法和 <code>Generator</code> 的 <code>resume</code> 方法必须使用 <code>Pin&lt;&amp;mut Self&gt;</code> 才行。并且在 <code>from_generator</code> 函数中为 <code>GenFuture</code> 实现了 <code>!Unpin</code>。</p>
+<p>经过前面的学习，我们知道为 <code>T</code> 实现了 <code>!Unpin</code> 后，就无法在 Safe Rust 中获取 <code>T</code> 的可变引用，而 Rust 会主动为 <code>Future</code> 实现 <code>!Unpin</code>，那么为什么 Rust 需要 <code>Pin</code> 住 <code>Future</code> 呢？</p>
+<p>假设我们编写了一个生成器：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
+
+fn main(){
+    let _gen = || {
+        let s = &quot;Hello World&quot;.to_string();
+        let borrowed_s = &amp;s;
+        
+        yield borrowed_s.len();
+        
+        println!(&quot;{}&quot;, borrowed_s);
+    };
+}
+</code></pre></pre>
+<p>编译后将会发生报错：</p>
+<pre><code class="language-rust noplayground">error[E0626]: borrow may still be in use when generator yields
+ --&gt; src/main.rs:6:26
+  |
+6 |         let borrowed_s = &amp;s;
+  |                          ^^
+7 |         
+8 |         yield borrowed_s.len();
+  |         ---------------------- possible yield occurs here
+
+</code></pre>
+<p>编译器提示我们生成器中存在跨 <code>yield</code> 借用，那么为什么编译器不允许跨 <code>yield</code> 借用呢？</p>
+<p>想要知道原因，我们还要继续深入底层，上述的生成器会被编译成一个状态机：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
+
+use std::pin::Pin;
+use std::ops::{Generator, GeneratorState};
+
+fn main() {
+    let mut gen = Gen::new();
+    
+    loop {
+        match Pin::new(&amp;mut gen).resume(()) {
+            GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+            GeneratorState::Complete(c) =&gt; {
+                println!(&quot;Complete: {:?}&quot;, c);
+                break;
+            }
+        }
+    }
+}
+
+enum Gen {
+    Enter,
+    Yielded{
+        s: String,
+        borrowed_s: *const String
+    },
+    Exit
+}
+
+
+impl&lt;R&gt; Generator&lt;R&gt; for Gen {
+    type Yield = usize;
+    type Return = ();
+    
+    fn resume(self: Pin&lt;&amp;mut Self&gt;, _arg: R) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt; {
+        let mut_gen = self.get_mut();
+        match mut_gen {
+            Gen::Enter =&gt; {
+                let s = &quot;Hello World&quot;.to_string();
+                let borrowed_s = &amp;s;
+                let len = borrowed_s.len();
+                
+                *mut_gen = Gen::Yielded {
+                    s,
+                    borrowed_s: std::ptr::null()
+                };
+                if let Gen::Yielded { s, borrowed_s } = mut_gen {
+                    *borrowed_s = s as *const _;
+                }
+                
+                GeneratorState::Yielded(len)
+            }
+            Gen::Yielded{ borrowed_s, .. } =&gt; {
+                let borrowed_s: &amp;String = unsafe { &amp;**borrowed_s };
+                println!(&quot;{}&quot;, borrowed_s);
+                *mut_gen = Gen::Exit;
+                
+                GeneratorState::Complete(())
+            }
+            Gen::Exit =&gt; panic!(&quot;Generator has been completed.&quot;)
+        }
+    }
+}
+
+impl Gen {
+    fn new() -&gt; Self {
+        Self::Enter
+    }
+}
+</code></pre></pre>
+<p>编译上述代码，结果似乎就是我们所期待的：</p>
+<pre><code class="language-rust noplayground">Yielded: 11
+Hello World
+Complete: ()
+</code></pre>
+<p>从上述的代码中可以看出，<strong>生成的状态机中存在自引用结构</strong>。因此如果生成器中存在跨 <code>yield</code> 点借用，那么就可能产生内存安全问题，编译器干脆就禁止存在跨 <code>yield</code> 点借用的生成器通过编译。</p>
+<p>例如，如果我们使用 <code>swap</code> 函数 <code>move</code> 生成器就可能发生异常：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
+
+use std::pin::Pin;
+use std::ops::{Generator, GeneratorState};
+
+fn main() {
+    let mut gen_1 = Gen::new();
+    let mut gen_2 = Gen::new();
+    
+    match Pin::new(&amp;mut gen_1).resume(()) {
+        GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+        GeneratorState::Complete(c) =&gt; println!(&quot;Complete: {:?}&quot;, c)
+    }
+    match Pin::new(&amp;mut gen_2).resume(()) {
+        GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+        GeneratorState::Complete(c) =&gt; println!(&quot;Complete: {:?}&quot;, c)
+    }
+    
+    std::mem::swap(&amp;mut gen_1, &amp;mut gen_2);
+    
+    match Pin::new(&amp;mut gen_1).resume(()) {
+        GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+        GeneratorState::Complete(c) =&gt; println!(&quot;Complete: {:?}&quot;, c)
+    }
+    match Pin::new(&amp;mut gen_2).resume(()) {
+        GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+        GeneratorState::Complete(c) =&gt; println!(&quot;Complete: {:?}&quot;, c)
+    }
+}
+<span class="boring">enum Gen {
+</span><span class="boring">   Enter,
+</span><span class="boring">   Yielded{
+</span><span class="boring">       s: String,
+</span><span class="boring">       borrowed_s: *const String
+</span><span class="boring">   },
+</span><span class="boring">   Exit
+</span><span class="boring">}
+</span><span class="boring">impl&lt;R&gt; Generator&lt;R&gt; for Gen {
+</span><span class="boring">   type Yield = usize;
+</span><span class="boring">   type Return = ();    
+</span><span class="boring">   fn resume(self: Pin&lt;&amp;mut Self&gt;, _arg: R) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt; {
+</span><span class="boring">       let mut_gen = self.get_mut();
+</span><span class="boring">       match mut_gen {
+</span><span class="boring">           Gen::Enter =&gt; {
+</span><span class="boring">               let s = &quot;Hello World&quot;.to_string();
+</span><span class="boring">               let borrowed_s = &amp;s;
+</span><span class="boring">               let len = borrowed_s.len();
+</span><span class="boring">               
+</span><span class="boring">               *mut_gen = Gen::Yielded {
+</span><span class="boring">                   s,
+</span><span class="boring">                   borrowed_s: std::ptr::null()
+</span><span class="boring">               };
+</span><span class="boring">               if let Gen::Yielded { s, borrowed_s } = mut_gen {
+</span><span class="boring">                   *borrowed_s = s as *const _;
+</span><span class="boring">               }               
+</span><span class="boring">               GeneratorState::Yielded(len)
+</span><span class="boring">           }
+</span><span class="boring">           Gen::Yielded{ borrowed_s, .. } =&gt; {
+</span><span class="boring">               let borrowed_s: &amp;String = unsafe { &amp;**borrowed_s };
+</span><span class="boring">               println!(&quot;{}&quot;, borrowed_s);
+</span><span class="boring">               *mut_gen = Gen::Exit;               
+</span><span class="boring">               GeneratorState::Complete(())
+</span><span class="boring">           }
+</span><span class="boring">           Gen::Exit =&gt; panic!(&quot;Generator has been completed.&quot;)
+</span><span class="boring">       }
+</span><span class="boring">   }
+</span><span class="boring">}
+</span><span class="boring">impl Gen {
+</span><span class="boring">   fn new() -&gt; Self {
+</span><span class="boring">       Self::Enter
+</span><span class="boring">   }
+</span><span class="boring">}
+</span></code></pre></pre>
+<p>编译运行将会发生段错误：</p>
+<pre><code class="language-rust noplayground">/playground/tools/entrypoint.sh: line 11:    12 Segmentation fault
+Yielded: 11
+Yielded: 11
+Hello World
+Complete: ()
+</code></pre>
+<p>为了防止 <code>move</code> 掉生成器，我们需要为 <code>Gen</code> 实现 <code>!Unpin</code>：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(negative_impls)]
+#![feature(generators, generator_trait)]
+
+use std::pin::Pin;
+use std::ops::{Generator, GeneratorState};
+
+fn main() {
+    let mut gen_1 = Gen::new();
+    let mut gen_2 = Gen::new();
+    
+    let mut boxed_pin_1 = Box::pin(gen_1);
+    let mut boxed_pin_2 = Box::pin(gen_2);
+    
+    match boxed_pin_1.as_mut().resume(()) {
+        GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+        GeneratorState::Complete(c) =&gt; println!(&quot;Complete: {:?}&quot;, c)
+    }
+    match boxed_pin_2.as_mut().resume(()) {
+        GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+        GeneratorState::Complete(c) =&gt; println!(&quot;Complete: {:?}&quot;, c)
+    }
+    
+    std::mem::swap(boxed_pin_1.as_mut().get_mut(), boxed_pin_2.as_mut().get_mut());
+}
+
+enum Gen {
+    Enter,
+    Yielded{
+        s: String,
+        borrowed_s: *const String
+    },
+    Exit
+}
+
+impl !Unpin for Gen {}
+
+<span class="boring">impl&lt;R&gt; Generator&lt;R&gt; for Gen {
+</span><span class="boring">   type Yield = usize;
+</span><span class="boring">   type Return = ();    
+</span><span class="boring">   fn resume(self: Pin&lt;&amp;mut Self&gt;, _arg: R) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt; {
+</span><span class="boring">       let mut_gen = unsafe { self.get_unchecked_mut() };
+</span><span class="boring">       match mut_gen {
+</span><span class="boring">           Gen::Enter =&gt; {
+</span><span class="boring">               let s = &quot;Hello World&quot;.to_string();
+</span><span class="boring">               let borrowed_s = &amp;s;
+</span><span class="boring">               let len = borrowed_s.len();
+</span><span class="boring">               
+</span><span class="boring">               *mut_gen = Gen::Yielded {
+</span><span class="boring">                   s,
+</span><span class="boring">                   borrowed_s: std::ptr::null()
+</span><span class="boring">               };
+</span><span class="boring">               if let Gen::Yielded { s, borrowed_s } = mut_gen {
+</span><span class="boring">                   *borrowed_s = s as *const _;
+</span><span class="boring">               }               
+</span><span class="boring">               GeneratorState::Yielded(len)
+</span><span class="boring">           }
+</span><span class="boring">           Gen::Yielded{ borrowed_s, .. } =&gt; {
+</span><span class="boring">               let borrowed_s: &amp;String = unsafe { &amp;**borrowed_s };
+</span><span class="boring">               println!(&quot;{}&quot;, borrowed_s);
+</span><span class="boring">               *mut_gen = Gen::Exit;               
+</span><span class="boring">               GeneratorState::Complete(())
+</span><span class="boring">           }
+</span><span class="boring">           Gen::Exit =&gt; panic!(&quot;Generator has been completed.&quot;)
+</span><span class="boring">       }
+</span><span class="boring">   }
+</span><span class="boring">}
+</span><span class="boring">impl Gen {
+</span><span class="boring">   fn new() -&gt; Self {
+</span><span class="boring">       Self::Enter
+</span><span class="boring">   }
+</span><span class="boring">}
+</span></code></pre></pre>
+<p>编译修改后的代码将会直接报错：</p>
+<pre><code class="language-rust noplayground">error[E0277]: `Gen` cannot be unpinned
+   --&gt; src/main.rs:23:41
+    |
+23  |     std::mem::swap(boxed_pin_1.as_mut().get_mut(), boxed_pin_2.as_mut().get_mut());
+    |                                         ^^^^^^^ the trait `Unpin` is not implemented for `Gen`
+    |
+    = note: consider using `Box::pin`
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
+
+error[E0277]: `Gen` cannot be unpinned
+   --&gt; src/main.rs:23:73
+    |
+23  |     std::mem::swap(boxed_pin_1.as_mut().get_mut(), boxed_pin_2.as_mut().get_mut());
+    |                                                                         ^^^^^^^ the trait `Unpin` is not implemented for `Gen`
+    |
+    = note: consider using `Box::pin`
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
+</code></pre>
+<p>通过为生成器实现 <code>!Unpin</code>，我们有效的防止了可能会出现的内存安全问题。</p>
+<p>但是，我们无法为使用闭包编写的生成器实现 <code>!Unpin</code>，那么怎么让我们的初版代码编译通过呢？答案是使用 <code>static</code> 关键字标记生成器，这就相当于为我们的生成器实现了 <code>!Unpin</code>：</p>
+<pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
+
+use std::ops::{Generator, GeneratorState};
+
+
+fn main(){
+    let gen = static || {
+        let s = &quot;Hello World&quot;.to_string();
+        let borrowed_s = &amp;s;
+        
+        yield borrowed_s.len();
+        
+        println!(&quot;{}&quot;, borrowed_s);
+    };
+    
+    let mut boxed_pin_gen = Box::pin(gen);
+    
+    loop {
+        match boxed_pin_gen.as_mut().resume(()) {
+            GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
+            GeneratorState::Complete(c) =&gt; {
+                println!(&quot;Complete: {:?}&quot;, c);
+                break;
+            }
+        }
+    }
+}
+</code></pre></pre>
+<p>编译运行，一切正常：</p>
+<pre><code class="language-rust noplayground">Yielded: 11
+Hello World
+Complete: ()
+</code></pre>
+<h3 id="小总结"><a class="header" href="#小总结">小总结</a></h3>
+<p><code>async</code> 创建的 <code>Future</code> 在编译后会生成一个状态机，如果 <code>async</code> 代码中存在跨 <code>await</code> 借用，那么对应的底层生成器中也会存在跨 <code>yield</code> 点借用，最终生成的状态机中就会存在自引用结构，为了避免可能发生的内存安全问题，Rust 自动为 <code>Future</code> 实现了 <code>!Unpin</code>，并且只能使用 <code>Pin&lt;&amp;mut Self&gt;</code> 来调用 <code>Future</code> 的 <code>poll</code> 方法和 <code>Generator</code> 的 <code>resume</code> 方法，从而避免了使用者在 Safe Rust 中获取 <code>Future</code> 或 <code>Generator</code> 的可变引用，最终避免了使用者使用 <code>swap</code> 之类的函数 <code>move</code> 掉 <code>Future</code> 或 <code>Generator</code> 而造成的内存安全问题。 </p>
+<h2 id="pin-总结"><a class="header" href="#pin-总结">Pin 总结</a></h2>
+<p>官方的 <code>Async Book</code> 上给出了关于 <code>Pin</code> 的黄金八条：</p>
+<ol>
+<li>
+<p>如果 <code>T: Unpin</code>（默认会实现），那么 <code>Pin&lt;'a, T&gt;</code> 完全等价于 <code>&amp;'a mut T</code>。换言之： <code>Unpin</code> 意味着这个类型被移走也没关系，就算已经被固定了，所以 <code>Pin</code> 对这样的类型毫无影响。</p>
+</li>
+<li>
+<p>如果 <code>T: !Unpin</code>， 获取已经被固定的 <code>T</code> 类型示例的 <code>&amp;mut T</code>需要 <code>unsafe</code>。</p>
+</li>
+<li>
+<p>标准库中的大部分类型实现 <code>Unpin</code>，在 Rust 中遇到的多数普通类型也是一样。但是， <code>async/await</code> 生成的 <code>Future</code> 是个例外。</p>
+</li>
+<li>
+<p>你可以在 <code>nightly</code> 通过特性标记来给类型添加 <code>!Unpin</code> 约束，或者在 <code>stable</code> 给你的类型加 <code>std::marker::PhatomPinned</code> 字段。</p>
+</li>
+<li>
+<p>你可以将数据固定到栈上或堆上。</p>
+</li>
+<li>
+<p>固定 <code>!Unpin</code> 对象到栈上需要 <code>unsafe</code></p>
+</li>
+<li>
+<p>固定 <code>!Unpin</code> 对象到堆上不需要<code> unsafe</code>，<code>Box::pin</code>可以快速完成这种固定。</p>
+</li>
+<li>
+<p>对于 <code>T: !Unpin</code> 的被固定数据，你必须维护好数据内存不会无效的约定，或者叫固定时起直到释放。这是 <code>Pin</code> 约定中的重要部分。</p>
+</li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="io-模型"><a class="header" href="#io-模型">IO 模型</a></h1>
+<p>在介绍 <code>Future trait</code> 的那一章中我们提到：如果一个 <code>Future</code> 没有计算完成，例如想要等待一个 IO 事件发生，那么通常会注册 <code>waker</code> 到一个“事件通知系统”中，当这个 IO 事件就绪时，“事件通知系统”就会通过 <code>waker</code> 唤醒之前的 <code>Future</code> 继续执行。</p>
+<p>那么“事件通知系统”要怎么知道 <code>Future</code> 想要等待的 IO 事件什么时候就绪呢？这与 IO 模型有关，因此在本章中我们将会介绍几种不同的 IO 模型以及它们的特点。</p>
+<hr />
+<p>对于一次 IO 访问（例如 <code>read</code> 操作），通常有两个不同的阶段：</p>
+<ol>
+<li>等待数据准备 (Waiting for the data to be ready)</li>
+<li>将数据从内核拷贝到进程中 (Copying the data from the kernel to the process)</li>
+</ol>
+<p>例如在一个 <code>socket</code> 上读取数据，首先需要等待数据到达网络，当数据到达时将数据拷贝到内核缓冲区中，再将数据从内核缓冲区中拷贝到用户进程的缓冲区中。</p>
+<p>正是由于 IO 访问经历的两个阶段，Linux 系统产生了下面五种 IO 模型：</p>
+<ul>
+<li>阻塞 IO（blocking IO）</li>
+<li>非阻塞 IO（nonblocking IO）</li>
+<li>IO 多路复用（IO multiplexing）</li>
+<li>信号驱动 IO（signal driven IO）</li>
+<li>异步 IO（asynchronous IO）</li>
+</ul>
+<p>信号驱动 IO 在实际中用的不多，因此本章中不会介绍信号驱动 IO，感兴趣的话可以阅读 <a href="https://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec2.html">Unix Network Programming</a> 中关于关于信号驱动 IO 的部分。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="阻塞-io"><a class="header" href="#阻塞-io">阻塞 IO</a></h1>
+<p>在 Linux 中，阻塞 IO 是最流行的 IO 模型，默认情况下所有的 <code>socket</code> 都是阻塞的（blocking）。对于阻塞 IO 来说，读操作的流程如下所示：</p>
+<p><img src="imgs/Blocking-IO.png" alt="Blocking IO Model" /></p>
+<p>当用户进程发起 <code>recvfrom</code> 系统调用后，内核开始 IO 的第一个阶段：等待数据准备好，把数据从硬件拷贝到内核缓冲区（对于网络 IO，要先等待数据报文到达）。当数据准备好后，开始 IO 的第二个阶段：把数据从内核缓冲区拷贝到用户进程的缓冲区。当两个 IO 阶段都完成后，<code>recvfrom</code> 系统调用返回，也就是说用户进程从发起 <code>recvfrom</code> 系统调用直到返回都是处于阻塞状态。</p>
+<p>因此，<strong>对于阻塞 IO 来说，用户进程在 IO 的两个阶段都被 <code>recvfrom</code> 系统调用阻塞了</strong>。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="非阻塞-io"><a class="header" href="#非阻塞-io">非阻塞 IO</a></h1>
+<p>在 Linux 中，我们可以把一个 <code>socket</code> 设置为非阻塞（nonblocking）。对于非阻塞 IO 来说，读操作的流程如下所示：</p>
+<p><img src="imgs/Nonblocking-IO.png" alt="Nonblocking IO Model" /></p>
+<p>当用户进程发起 <code>recvfrom</code> 系统调用后，如果数据没有准备好，<code>recvfrom</code> 系统调用会立即返回 <code>EWOULDBLOCK</code> 错误。用户进程可以通过一个死循环不断发起 <code>recvfrom</code> 系统调用，一旦数据准备好了，就进入 IO 的第二个阶段：把数据从内核缓冲区拷贝到用户用进程的缓冲区，当拷贝完成后，<code>recvfrom</code> 系统调用正常返回。</p>
+<p>因此，<strong>对于 Nonblocking IO 来说，用户进程需要不断轮询内核数据准备好了没有，并且用户进程在 IO 的第二个阶段仍然会被 <code>recvfrom</code> 系统调用阻塞</strong>。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="io-多路复用"><a class="header" href="#io-多路复用">IO 多路复用</a></h1>
+<p>IO 多路复用是指通过一种机制实现在单个线程中可以监视多个文件描述符（例如 <code>socket</code> 描述符），当文件描述读/写就绪时，用户进程就可以获取就绪的文件句柄。<code>select</code>、<code>poll</code>、<code>epoll</code> 都是 IO 多路复用的一种实现。</p>
+<p>以 <code>select</code> 为例，读操作的流程如下所示：</p>
+<p><img src="imgs/IO-Multiplexing-Model.png" alt="IO Multiplexing Model" /></p>
+<p>当用户进程发起 <code>select</code> 系统调用后，用户进程被阻塞，而内核会监控 <code>select</code> 负责的所有文件描述符，当任意一个文件描述符的数据准备好时，<code>select</code> 会返回就绪的文件描述符。此时，用户进程就可以对就绪的文件描述符发起 <code>recvfrom</code> 系统调用，开始 IO 的第二个阶段：将数据从内核缓冲区拷贝到用户进程的缓冲区，当拷贝结束后 <code>recvfrom</code> 调用正常返回。 </p>
+<p>因此，<strong>对于 IO 多路复用来说，用户进程在 IO 的两个阶段都被阻塞了：在 IO 的第一个阶段被 <code>select</code> 系统调用阻塞，在 IO 的第二个阶段被 <code>recvfrom</code> 系统调用阻塞</strong>。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="异步-io"><a class="header" href="#异步-io">异步 IO</a></h1>
+<p>对于异步 IO 来说，读操作的流程如下所示：</p>
+<p><img src="imgs/Asynchronous-IO.png" alt="Asynchronous IO Model" /></p>
+<p>当用户进程发起异步框架 <code>AIO</code> 提供的 <code>aio_read</code> 系统调用后，这个系统调用会马上返回。内核会准备好数据然后把数据从内核缓冲区拷贝到用户进程缓冲区，当 IO 的两个阶段都完成后，内核会发送一个信号通知用户进程 <code>read</code> 操作完成了。</p>
+<p>因此，<strong>对于异步 IO 来说，用户进程在 IO 的两个阶段都不会被阻塞</strong>。</p>
+<blockquote>
+<p>题外话：实际上 <code>AIO</code> 并不理想，因此之前的 Linux 异步 IO 在实际中应用的并不多。直到2019年在 Linux 5.1 中首次引入了 <code>io_uring</code> 高性能异步 IO 框架，让 Linux 异步 IO 变得有可能真正流行起来。<code>tokio-rs</code> 提供的 <a href="https://github.com/tokio-rs/tokio-uring">tokio-uring</a> 就是一个使用 <code>io_uring</code> 实现的异步运行时。</p>
+</blockquote>
+<h2 id="总结"><a class="header" href="#总结">总结</a></h2>
+<p><code>POSIX</code> 对同步 IO 和异步 IO 的定义如下：</p>
+<ul>
+<li>同步 IO 操作会导致发起请求的进程被阻塞，直到 IO 操作完成。</li>
+<li>异步 IO 操作导致发起请求的进程被阻塞。</li>
+</ul>
+<p>根据 <code>PISIX</code> 的定义，可以把 IO 模型分为以下两类：</p>
+<pre><code>                                 +-+-+-+-+-+ 阻 塞 I/O (BIO)
+                                 |
+                                 +-+-+-+-+-+ 非 阻 塞 I/O (NIO)
+                                 |
+              +----------+ 同 步 I/O
+              |                  |
+              |                  +-+-+-+-+-+ I/O 多 路 复 用
+              |                  |
+              |                  +-+-+-+-+-+ 信 号 驱 动 I/O
+I/O 模 型  +---+
+              |
+              |
+              |                  +-+-+-+-+-+ Linux (AIO)
+              |                  |         (io_uring)
+              +----------+ 异 步 I/O
+                                 |
+                                 +-+-+-+-+-+ windows (IOCP)
+</code></pre>
+<p>最后，各个 IO 模型的比较如下所示：</p>
+<p><img src="imgs/Comparison-IO-Model.png" alt="Comparison of the IO Models" /></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="epoll"><a class="header" href="#epoll">Epoll</a></h1>
+<p>施工中。。。。。。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="epoll-介绍"><a class="header" href="#epoll-介绍">Epoll 介绍</a></h1>
+<p>施工中。。。。。。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="epoll-server-example"><a class="header" href="#epoll-server-example">Epoll server example</a></h1>
+<p>施工中。。。。。。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="异步运行时"><a class="header" href="#异步运行时">异步运行时</a></h1>
+<p>施工中。。。。。。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </body>
+</html>

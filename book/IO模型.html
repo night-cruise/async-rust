@@ -1,0 +1,217 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>IO 模型 - async in rust</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A book which aims to introduce the theory and mechanism of async/await syntax and async runtime in the Rust.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="异步编程.html"><strong aria-hidden="true">2.</strong> 异步编程</a></li><li class="chapter-item expanded "><a href="async-await.html"><strong aria-hidden="true">3.</strong> async/await</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="async-await的使用.html"><strong aria-hidden="true">3.1.</strong> async/await 的使用</a></li><li class="chapter-item expanded "><a href="Future-trait.html"><strong aria-hidden="true">3.2.</strong> Future trait</a></li><li class="chapter-item expanded "><a href="Generator.html"><strong aria-hidden="true">3.3.</strong> Generator</a></li><li class="chapter-item expanded "><a href="状态机.html"><strong aria-hidden="true">3.4.</strong> 状态机</a></li><li class="chapter-item expanded "><a href="Pin.html"><strong aria-hidden="true">3.5.</strong> Pin</a></li></ol></li><li class="chapter-item expanded "><a href="IO模型.html" class="active"><strong aria-hidden="true">4.</strong> IO 模型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="阻塞IO.html"><strong aria-hidden="true">4.1.</strong> 阻塞 IO</a></li><li class="chapter-item expanded "><a href="非阻塞IO.html"><strong aria-hidden="true">4.2.</strong> 非阻塞 IO</a></li><li class="chapter-item expanded "><a href="IO多路复用.html"><strong aria-hidden="true">4.3.</strong> IO 多路复用</a></li><li class="chapter-item expanded "><a href="异步IO.html"><strong aria-hidden="true">4.4.</strong> 异步 IO</a></li></ol></li><li class="chapter-item expanded "><a href="Epoll.html"><strong aria-hidden="true">5.</strong> Epoll</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Epoll介绍.html"><strong aria-hidden="true">5.1.</strong> Epoll 介绍</a></li><li class="chapter-item expanded "><a href="Epoll-server-example.html"><strong aria-hidden="true">5.2.</strong> Epoll server example</a></li></ol></li><li class="chapter-item expanded "><a href="异步运行时.html"><strong aria-hidden="true">6.</strong> 异步运行时</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">async in rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/night-cruise/async-rust" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="io-模型"><a class="header" href="#io-模型">IO 模型</a></h1>
+<p>在介绍 <code>Future trait</code> 的那一章中我们提到：如果一个 <code>Future</code> 没有计算完成，例如想要等待一个 IO 事件发生，那么通常会注册 <code>waker</code> 到一个“事件通知系统”中，当这个 IO 事件就绪时，“事件通知系统”就会通过 <code>waker</code> 唤醒之前的 <code>Future</code> 继续执行。</p>
+<p>那么“事件通知系统”要怎么知道 <code>Future</code> 想要等待的 IO 事件什么时候就绪呢？这与 IO 模型有关，因此在本章中我们将会介绍几种不同的 IO 模型以及它们的特点。</p>
+<hr />
+<p>对于一次 IO 访问（例如 <code>read</code> 操作），通常有两个不同的阶段：</p>
+<ol>
+<li>等待数据准备 (Waiting for the data to be ready)</li>
+<li>将数据从内核拷贝到进程中 (Copying the data from the kernel to the process)</li>
+</ol>
+<p>例如在一个 <code>socket</code> 上读取数据，首先需要等待数据到达网络，当数据到达时将数据拷贝到内核缓冲区中，再将数据从内核缓冲区中拷贝到用户进程的缓冲区中。</p>
+<p>正是由于 IO 访问经历的两个阶段，Linux 系统产生了下面五种 IO 模型：</p>
+<ul>
+<li>阻塞 IO（blocking IO）</li>
+<li>非阻塞 IO（nonblocking IO）</li>
+<li>IO 多路复用（IO multiplexing）</li>
+<li>信号驱动 IO（signal driven IO）</li>
+<li>异步 IO（asynchronous IO）</li>
+</ul>
+<p>信号驱动 IO 在实际中用的不多，因此本章中不会介绍信号驱动 IO，感兴趣的话可以阅读 <a href="https://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec2.html">Unix Network Programming</a> 中关于关于信号驱动 IO 的部分。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="Pin.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="阻塞IO.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="Pin.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="阻塞IO.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>
