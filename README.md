@@ -8,7 +8,7 @@
 
 ## Usage
 
-在线阅读地址：https://night-cruise.github.io/async-rust/。
+在线阅读地址：https://night-cruise.github.io/async-rust/
 
 
 
