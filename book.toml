@@ -11,3 +11,6 @@ edition = "2021"
 
 [output.html]
 git-repository-url = "https://github.com/night-cruise/async-rust"
+
+[build]
+build-dir = "docs"
