@@ -29,7 +29,7 @@ cd async-rust
 使用 [mdbook](https://github.com/rust-lang/mdBook) 构建电子书：
 
 ```
-mdbook build --release
+mdbook build --open
 ```
 
 
