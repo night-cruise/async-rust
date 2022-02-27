@@ -47,4 +47,4 @@
 * <https://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec2.html>
 * <https://www.cnblogs.com/alex3714/articles/5876749.html>
 * <https://www.jianshu.com/p/31cdfd6f5a48>
-* <https://www.zhihu.com/collection/237324990>
+* <https://zhuanlan.zhihu.com/p/92617116>
