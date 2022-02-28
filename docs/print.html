@@ -1516,9 +1516,7 @@ Complete: ()
 </li>
 </ol>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="io-模型"><a class="header" href="#io-模型">IO 模型</a></h1>
-<p>在介绍 <code>Future trait</code> 的那一章中我们提到：如果一个 <code>Future</code> 没有计算完成，例如想要等待一个 IO 事件发生，那么通常会注册 <code>waker</code> 到一个“事件通知系统”中，当这个 IO 事件就绪时，“事件通知系统”就会通过 <code>waker</code> 唤醒之前的 <code>Future</code> 继续执行。</p>
-<p>那么“事件通知系统”要怎么知道 <code>Future</code> 想要等待的 IO 事件什么时候就绪呢？这与 IO 模型有关，因此在本章中我们将会介绍几种不同的 IO 模型以及它们的特点。</p>
-<hr />
+<h2 id="io-访问"><a class="header" href="#io-访问">IO 访问</a></h2>
 <p>对于一次 IO 访问（例如 <code>read</code> 操作），通常有两个不同的阶段：</p>
 <ol>
 <li>等待数据准备 (Waiting for the data to be ready)</li>
@@ -1534,6 +1532,9 @@ Complete: ()
 <li>异步 IO（asynchronous IO）</li>
 </ul>
 <p>信号驱动 IO 在实际中用的不多，因此本章中不会介绍信号驱动 IO，感兴趣的话可以阅读 <a href="https://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec2.html">Unix Network Programming</a> 中关于关于信号驱动 IO 的部分。</p>
+<h2 id="io-模型与-future"><a class="header" href="#io-模型与-future">IO 模型与 Future</a></h2>
+<p>在介绍 <code>Future trait</code> 的那一章中我们提到：如果一个 <code>Future</code> 没有计算完成，例如想要等待一个 IO 事件发生，那么通常会注册 <code>waker</code> 到一个“事件通知系统”中，当这个 IO 事件就绪时，“事件通知系统”就会通过 <code>waker</code> 唤醒之前的 <code>Future</code> 继续执行。</p>
+<p>那么“事件通知系统”要怎么知道 <code>Future</code> 想要等待的 IO 事件什么时候就绪呢？这与 IO 模型有关，因此在本章中我们将会介绍几种不同的 IO 模型以及它们的特点。</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="阻塞-io"><a class="header" href="#阻塞-io">阻塞 IO</a></h1>
 <p>在 Linux 中，阻塞 IO 是最流行的 IO 模型，默认情况下所有的 <code>socket</code> 都是阻塞的（blocking）。对于阻塞 IO 来说，读操作的流程如下所示：</p>
 <p><img src="imgs/Blocking-IO.png" alt="Blocking IO Model" /></p>
@@ -1589,6 +1590,7 @@ I/O 模 型  +---+
 <p><code>Epoll</code> 本质上是一种 IO 事件通知机制，是前文所述的在 Linux 中 IO 多路复用的一种实现。在本章中，我们将会简略介绍 <code>Epoll</code> 的原理，并使用 <code>Epoll</code> 实现一个简单的 <code>echo server</code>。</p>
 <p>在最后一章《异步运行时》中，我们也会使用 <code>Epoll</code> 作为基础来实现一个 <code>Reactor</code>（<code>Reactor</code> 的概念会在后面介绍）。</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="epoll-介绍"><a class="header" href="#epoll-介绍">Epoll 介绍</a></h1>
+<h2 id="epoll-工作流程"><a class="header" href="#epoll-工作流程">Epoll 工作流程</a></h2>
 <p><code>Epoll</code> 的大致工作流程如下所示：</p>
 <pre><code>                    +------------------------------+       +-------------------------+
                     | epoll_ctl                    |       | epoll_wait              |
@@ -1613,15 +1615,19 @@ epoll_create ----&gt;  |           |   |     |   |    |       |         +--+--+ 
                     +------------------------------+       +-------------------------+
 
 </code></pre>
+<blockquote>
 <ol>
 <li><code>int epoll_create(int size)</code></li>
 </ol>
+</blockquote>
 <p>内核会产生一个 <code>Epoll</code> 实例数据结构并返回一个文件描述符，这个特殊的描述符是 <code>epoll</code> 实例的句柄。</p>
 <p><code>size</code> 参数只是告诉内核 <code>Epoll</code> 处理的事件的大致数目，而不是能够处理的事件的最大个数。在 Linux 最新的一些内核版本中，<code>size</code> 参数没有任何意义。</p>
-<hr />
+<br/>
+<blockquote>
 <ol start="2">
 <li><code>int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)</code></li>
 </ol>
+</blockquote>
 <p>将被监听的描述符添加到红黑树或从红黑树中删除或者对监听事件进行修改。</p>
 <p><code>op</code> 参数用于说明操作类型：</p>
 <ul>
@@ -1653,38 +1659,32 @@ struct epoll_event {
 <li><code>EPOLLPRI</code>：由带外数据触发</li>
 <li><code>EPOLLERR</code>：描述符产生错误时触发，默认检测事件</li>
 </ul>
-<hr />
+<br/>
+<blockquote>
 <ol start="3">
 <li><code>int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)</code></li>
 </ol>
+</blockquote>
 <p>阻塞等待注册的事件发生，返回触发的事件的数目，并将触发的事件写入 <code>events</code> 数组中。</p>
 <p><code>maxevents</code> 是返回的 <code>event</code> 的最大数量。<code>events</code> 数组的长度应该与 <code>maxevents</code> 一致。<code>timeout</code> 是 <code>epoll_wait</code> 调用阻塞的时间上限。</p>
-<h2 id="触发机制"><a class="header" href="#触发机制">触发机制</a></h2>
+<h2 id="epoll-触发机制"><a class="header" href="#epoll-触发机制">Epoll 触发机制</a></h2>
 <p><code>Epoll</code> 监控多个文件描述符的 IO 事件，支持边缘触发（edge trigger，ET）和水平触发（level trigger，LT）。</p>
-<ol>
-<li>水平触发</li>
-</ol>
+<h3 id="水平触发"><a class="header" href="#水平触发">水平触发</a></h3>
 <p>对于读操作，只要文件描述符的读缓冲区不为空，触发可读事件。</p>
 <p>对于写操作，只要文件描述的写缓冲区不满，触发可写事件。</p>
-<ol start="2">
-<li>边缘触发</li>
-</ol>
-<p>当文件描述符的缓冲区状态发生变化时触发：</p>
-<ul>
-<li>读操作
+<h3 id="边缘触发"><a class="header" href="#边缘触发">边缘触发</a></h3>
+<p>当文件描述符的缓冲区状态发生变化时触发。</p>
+<p>对于读操作：</p>
 <ul>
 <li>当读缓冲区数据为空变为非空时，触发可读事件。</li>
 <li>当读缓冲区接收到新数据时，即读缓冲区待读数据变多时，触发可读事件。</li>
 <li>当读缓冲区有数据可读，且进程对相应的文件描述符进行 <code>EPOLL_CTL_MOD</code> 修改 <code>EPOLLIN</code> 事件时，触发可读事件。</li>
 </ul>
-</li>
-<li>写操作
+<p>对于写操作：</p>
 <ul>
 <li>当写缓冲区由不可写变为可写时，触发可写事件。</li>
 <li>当有旧数据被发送走，即读缓冲区中的内容变少的时候，触发可写事件。</li>
 <li>当写缓冲区有空间可写，且进程对相应的文件描述符进行 <code>EPOLL_CTL_MOD</code> 修改 <code>EPOLLOUT</code> 事件时，触发可写事件。</li>
-</ul>
-</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="epoll-server-example"><a class="header" href="#epoll-server-example">Epoll server example</a></h1>
 <p>施工中。。。。。。</p>
