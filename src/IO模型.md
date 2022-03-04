@@ -17,8 +17,6 @@
 * 信号驱动 IO（signal driven IO）
 * 异步 IO（asynchronous IO）
 
-信号驱动 IO 在实际中用的不多，因此本章中不会介绍信号驱动 IO，感兴趣的话可以阅读 [Unix Network Programming](https://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec2.html) 中关于关于信号驱动 IO 的部分。
-
 
 
 ## IO 模型与 Future
