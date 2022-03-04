@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>async/await 的使用 - async in rust</title>
+        <title>信号驱动 IO - async in rust</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="异步编程.html"><strong aria-hidden="true">2.</strong> 异步编程</a></li><li class="chapter-item expanded "><a href="async-await.html"><strong aria-hidden="true">3.</strong> async/await</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="async-await的使用.html" class="active"><strong aria-hidden="true">3.1.</strong> async/await 的使用</a></li><li class="chapter-item expanded "><a href="Future-trait.html"><strong aria-hidden="true">3.2.</strong> Future trait</a></li><li class="chapter-item expanded "><a href="Generator.html"><strong aria-hidden="true">3.3.</strong> Generator</a></li><li class="chapter-item expanded "><a href="状态机.html"><strong aria-hidden="true">3.4.</strong> 状态机</a></li><li class="chapter-item expanded "><a href="Pin.html"><strong aria-hidden="true">3.5.</strong> Pin</a></li></ol></li><li class="chapter-item expanded "><a href="IO模型.html"><strong aria-hidden="true">4.</strong> IO 模型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="阻塞IO.html"><strong aria-hidden="true">4.1.</strong> 阻塞 IO</a></li><li class="chapter-item expanded "><a href="非阻塞IO.html"><strong aria-hidden="true">4.2.</strong> 非阻塞 IO</a></li><li class="chapter-item expanded "><a href="信号驱动IO.html"><strong aria-hidden="true">4.3.</strong> 信号驱动 IO</a></li><li class="chapter-item expanded "><a href="IO多路复用.html"><strong aria-hidden="true">4.4.</strong> IO 多路复用</a></li><li class="chapter-item expanded "><a href="异步IO.html"><strong aria-hidden="true">4.5.</strong> 异步 IO</a></li></ol></li><li class="chapter-item expanded "><a href="Epoll.html"><strong aria-hidden="true">5.</strong> Epoll</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Epoll介绍.html"><strong aria-hidden="true">5.1.</strong> Epoll 介绍</a></li><li class="chapter-item expanded "><a href="Epoll-server-example.html"><strong aria-hidden="true">5.2.</strong> Epoll server example</a></li></ol></li><li class="chapter-item expanded "><a href="异步运行时.html"><strong aria-hidden="true">6.</strong> 异步运行时</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="异步编程.html"><strong aria-hidden="true">2.</strong> 异步编程</a></li><li class="chapter-item expanded "><a href="async-await.html"><strong aria-hidden="true">3.</strong> async/await</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="async-await的使用.html"><strong aria-hidden="true">3.1.</strong> async/await 的使用</a></li><li class="chapter-item expanded "><a href="Future-trait.html"><strong aria-hidden="true">3.2.</strong> Future trait</a></li><li class="chapter-item expanded "><a href="Generator.html"><strong aria-hidden="true">3.3.</strong> Generator</a></li><li class="chapter-item expanded "><a href="状态机.html"><strong aria-hidden="true">3.4.</strong> 状态机</a></li><li class="chapter-item expanded "><a href="Pin.html"><strong aria-hidden="true">3.5.</strong> Pin</a></li></ol></li><li class="chapter-item expanded "><a href="IO模型.html"><strong aria-hidden="true">4.</strong> IO 模型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="阻塞IO.html"><strong aria-hidden="true">4.1.</strong> 阻塞 IO</a></li><li class="chapter-item expanded "><a href="非阻塞IO.html"><strong aria-hidden="true">4.2.</strong> 非阻塞 IO</a></li><li class="chapter-item expanded "><a href="信号驱动IO.html" class="active"><strong aria-hidden="true">4.3.</strong> 信号驱动 IO</a></li><li class="chapter-item expanded "><a href="IO多路复用.html"><strong aria-hidden="true">4.4.</strong> IO 多路复用</a></li><li class="chapter-item expanded "><a href="异步IO.html"><strong aria-hidden="true">4.5.</strong> 异步 IO</a></li></ol></li><li class="chapter-item expanded "><a href="Epoll.html"><strong aria-hidden="true">5.</strong> Epoll</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Epoll介绍.html"><strong aria-hidden="true">5.1.</strong> Epoll 介绍</a></li><li class="chapter-item expanded "><a href="Epoll-server-example.html"><strong aria-hidden="true">5.2.</strong> Epoll server example</a></li></ol></li><li class="chapter-item expanded "><a href="异步运行时.html"><strong aria-hidden="true">6.</strong> 异步运行时</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -145,81 +145,21 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="asyncawait-的使用"><a class="header" href="#asyncawait-的使用">async/await 的使用</a></h1>
-<p><code>async/await </code>是 Rust 中特殊的语法，它使得让出当前线程的控制权而不阻塞线程成为可能，从而允许在等待一个操作完成时可以运行其他代码。</p>
-<p>有两种主要的方式使用 <code>async</code>：<code>async fn</code> 和 <code>async {}</code>。这两中使用方式都会返回一个实现了 <code>Future trait</code> 的值：</p>
-<pre><code class="language-rust noplayground">// `foo()` 返回一个实现了 `Future&lt;Output = u8&gt;` 的类型。
-// `foo().await` 将会产生一个 u8 类型的值。
-async fn foo() -&gt; u8 { 5 }
-
-fn bar() -&gt; impl Future&lt;Output = u8&gt; {
-    // 这个 `async` 块会产生一个实现了 `Future&lt;Output = u8&gt;` 的类型。
-    async {
-        let x: u8 = foo().await;
-        x + 5
-    }
-}
-
-</code></pre>
-<p><code>async fn</code> 和 <code>async {}</code> 返回的 <code>Future</code> 是惰性的：在真正开始运行之前它什么也不会做。运行一个 <code>Future</code> 的最普遍的方式是 <code>await</code> 这个 <code>Future</code>： <code>Future.await</code>。</p>
-<p>当 <code>await</code> 一个 <code>Future</code> 时，会暂停当前函数的运行，直到完成对 <code>Future</code> 的运行。如果这个 <code>Future</code> 被阻塞住了（例如等待网络IO），它会让出当前线程的控制权。当 <code>Future</code> 中的阻塞操作就绪时（例如等待的网络IO返回了响应），<code>executor</code> 会通过 <code>poll</code> 会恢复 <code>Future</code> 的运行。</p>
-<h2 id="async-lifetime"><a class="header" href="#async-lifetime">async lifetime</a></h2>
-<p>与普通的函数不一样，<code>async fn</code> 会获取引用或其他非静态生命周期的参数，然后返回被这些参数的生命周期约束的 <code>Future</code>：</p>
-<pre><code class="language-rust noplayground">async fn foo(x: &amp;u8) -&gt; u8 { *x }
-
-// 这与上面的函数完全等价
-fn foo_expanded&lt;'a&gt;(x: &amp;'a u8) -&gt; impl Future&lt;Output = u8&gt; + 'a {
-    async move { *x }
-}
-</code></pre>
-<p>这意味着，<code>async fn</code> 返回的 <code>Future</code> 必须在非静态生命周期参数仍然有效时 <code>.await</code>。在大多数情况下，我们在调用 <code>async</code> 函数后会立马 <code>.await</code>（例如 <code>foo(&amp;x).await</code>），因此 <code>async lifetime</code> 不会对执行产生什么影响。但是，如果我们存储这种 <code>Future</code> 或者发送给其他的 <code>task</code> 或者 <code>thread</code>，就可能会造成问题。</p>
-<p>把带有引用参数的 <code>async fn</code> 转化为静态 <code>Future</code> 的解决方法是：把参数和对 <code>async fn</code> 的调用封装到 <code>async</code> 块中：</p>
-<pre><code class="language-rust noplayground">fn bad() -&gt; impl Future&lt;Output = u8&gt; {
-    let x = 5;
-    borrow_x(&amp;x) // ERROR: `x` does not live long enough
-}
-
-fn good() -&gt; impl Future&lt;Output = u8&gt; {
-    async {
-        let x = 5;
-        borrow_x(&amp;x).await
-    }
-}
-</code></pre>
-<p>通过把参数移动到 <code>async</code> 块中，我们把它的生命周期扩展到了匹配调用 <code>good</code> 返回的 <code>Future</code> 的生命周期。</p>
-<h2 id="async-move"><a class="header" href="#async-move">async move</a></h2>
-<p><code>async</code> 块和闭包允许像普通闭包那样使用 <code>move</code> 关键字。一个 <code>async move</code> 块会获取变量的所有权，但是这会导致无法与其他的代码共享这些变量：</p>
-<pre><code class="language-rust noplayground">// 不同的 async 块可以访问相同的变量s，只要它们都在s的作用域范围内执行
-async fn blocks() {
-    let s = String::new(&quot;Hello World&quot;);
-    let future_one = async {
-        println!(&quot;{:?}&quot;, s);
-    }
-    let future_two = async {
-        println!(&quot;{:?}&quot;, s);
-    }
-    
-    executor::join(future_one, future_two);
-}
-
-// s 被 move 进行 async 块中，因此只能在该 async 块内才能访问 
-fn move_block() -&gt; impl Future&lt;Output = ()&gt; {
-    let s = String::new(&quot;Hello World&quot;);
-    async move {
-        println!(&quot;{:?}&quot;, s);
-    }
-}
-</code></pre>
+                        <h1 id="信号驱动-io"><a class="header" href="#信号驱动-io">信号驱动 IO</a></h1>
+<p>对于信号驱动 IO 来说，读操作的流程如下所示：</p>
+<p><img src="imgs/Signal-Driven-IO.png" alt="Signal Driven IO" /></p>
+<p>当用户进程发起 <code>sigaction</code> 系统调用后，这个系统调用会马上返回。内核在准备好数据后会向用户进程发送 <code>SIGIO</code> 信号，用户进程收到信号之后会在信号处理程序中发起 <code>recvfrom</code> 系统调用将数据从内核缓冲区复制到用户进程缓冲区中，至此 IO 的两个阶段全部完成。</p>
+<p>因此，<strong>对于信号驱动 IO 来说，用户进程在 IO 的第二个阶段被 <code>recvfrom</code> 系统调用阻塞了</strong>。</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="async-await.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="非阻塞IO.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="Future-trait.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="IO多路复用.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -229,11 +169,11 @@ fn move_block() -&gt; impl Future&lt;Output = ()&gt; {
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="async-await.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="非阻塞IO.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="Future-trait.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="IO多路复用.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
