@@ -48,4 +48,4 @@
 * <https://www.cnblogs.com/alex3714/articles/5876749.html>
 * <https://www.jianshu.com/p/31cdfd6f5a48>
 * <https://zhuanlan.zhihu.com/p/92617116>
-* <https://github.com/night-cruise/rust-epoll-example>
+* <https://github.com/zupzup/rust-epoll-example>
