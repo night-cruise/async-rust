@@ -36,7 +36,6 @@ mdbook build --open
 
 ## Todo
 
-* epoll-echo-server
 * 异步运行时
 
 
