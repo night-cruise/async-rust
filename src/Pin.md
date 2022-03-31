@@ -219,7 +219,7 @@ where
 
 ### Pin to stack
 
-`Pin` 到栈上是指 `Pin` 的那个指针在栈上面，使用 `Pin::new_unchecked` 函数即可把指针 `Pin` 到栈上去：
+`Pin` 到栈上是指我们想要 `Pin` 住的值在栈上，使用 `Pin::new_unchecked` 函数把 `&mut T` 包装成 `Pin<&mut T>` 即可：
 
 ```rust
 #![feature(negative_impls)]
@@ -380,7 +380,7 @@ sr_2: { a: Hello, b: World }
 
 ### Pin to heap
 
-`Pin` 到堆上是指 `Pin` 的那个指针在堆上面，使用`Box::pin` 函数即可把指针 `Pin` 到堆上去：
+`Pin` 到堆上是指把我们想要 `Pin` 住的值装箱到堆上面，使用`Box::pin` 函数即可把 `T` 包装成 `Pin<Box<T>>`：
 
 ```rust
 #![feature(negative_impls)]
