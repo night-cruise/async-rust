@@ -919,7 +919,7 @@ where
 <p>因此，<code>Pin&lt;P&lt;T&gt;&gt;</code> 利用 Rust 的类型系统保证：如果 <code>T</code> 实现了 <code>!Unpin</code>，那么就不可能在 Safe Rust 中获取 <code>T</code> 的可变引用。相反，如果 <code>T</code> 实现了 <code>Unpin</code>，那么 <code>Pin</code> 就仅仅是对 <code>P&lt;T&gt;</code> 的一层包装，我么可以随意地拿到 <code>&amp;mut T</code>。</p>
 <p>接下来，我们将会使用 <code>Pin</code> 解决上面的那个例子中出现的问题。</p>
 <h3 id="pin-to-stack"><a class="header" href="#pin-to-stack">Pin to stack</a></h3>
-<p><code>Pin</code> 到栈上是指 <code>Pin</code> 的那个指针在栈上面，使用 <code>Pin::new_unchecked</code> 函数即可把指针 <code>Pin</code> 到栈上去：</p>
+<p><code>Pin</code> 到栈上是指我们想要 <code>Pin</code> 住的值在栈上，使用 <code>Pin::new_unchecked</code> 函数把 <code>&amp;mut T</code> 包装成 <code>Pin&lt;&amp;mut T&gt;</code> 即可：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(negative_impls)]
 use std::pin::Pin;
 
@@ -1063,7 +1063,7 @@ sr_1: { a: World, b: Hello }
 sr_2: { a: Hello, b: World }
 </code></pre>
 <h3 id="pin-to-heap"><a class="header" href="#pin-to-heap">Pin to heap</a></h3>
-<p><code>Pin</code> 到堆上是指 <code>Pin</code> 的那个指针在堆上面，使用<code>Box::pin</code> 函数即可把指针 <code>Pin</code> 到堆上去：</p>
+<p><code>Pin</code> 到堆上是指把我们想要 <code>Pin</code> 住的值装箱到堆上面，使用<code>Box::pin</code> 函数即可把 <code>T</code> 包装成 <code>Pin&lt;Box&lt;T&gt;&gt;</code>：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(negative_impls)]
 use std::pin::Pin;
 
