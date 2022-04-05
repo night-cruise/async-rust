@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="异步编程.html"><strong aria-hidden="true">2.</strong> 异步编程</a></li><li class="chapter-item expanded "><a href="async-await.html"><strong aria-hidden="true">3.</strong> async/await</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="async-await的使用.html"><strong aria-hidden="true">3.1.</strong> async/await 的使用</a></li><li class="chapter-item expanded "><a href="Future-trait.html"><strong aria-hidden="true">3.2.</strong> Future trait</a></li><li class="chapter-item expanded "><a href="Generator.html"><strong aria-hidden="true">3.3.</strong> Generator</a></li><li class="chapter-item expanded "><a href="状态机.html"><strong aria-hidden="true">3.4.</strong> 状态机</a></li><li class="chapter-item expanded "><a href="Pin.html"><strong aria-hidden="true">3.5.</strong> Pin</a></li></ol></li><li class="chapter-item expanded "><a href="IO模型.html"><strong aria-hidden="true">4.</strong> IO 模型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="阻塞IO.html"><strong aria-hidden="true">4.1.</strong> 阻塞 IO</a></li><li class="chapter-item expanded "><a href="非阻塞IO.html"><strong aria-hidden="true">4.2.</strong> 非阻塞 IO</a></li><li class="chapter-item expanded "><a href="信号驱动IO.html"><strong aria-hidden="true">4.3.</strong> 信号驱动 IO</a></li><li class="chapter-item expanded "><a href="IO多路复用.html"><strong aria-hidden="true">4.4.</strong> IO 多路复用</a></li><li class="chapter-item expanded "><a href="异步IO.html"><strong aria-hidden="true">4.5.</strong> 异步 IO</a></li></ol></li><li class="chapter-item expanded "><a href="Epoll.html"><strong aria-hidden="true">5.</strong> Epoll</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Epoll介绍.html"><strong aria-hidden="true">5.1.</strong> Epoll 介绍</a></li><li class="chapter-item expanded "><a href="Epoll-server-example.html"><strong aria-hidden="true">5.2.</strong> Epoll server example</a></li></ol></li><li class="chapter-item expanded "><a href="异步运行时.html" class="active"><strong aria-hidden="true">6.</strong> 异步运行时</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="异步编程.html"><strong aria-hidden="true">2.</strong> 异步编程</a></li><li class="chapter-item expanded "><a href="async-await.html"><strong aria-hidden="true">3.</strong> async/await</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="async-await/async-await的使用.html"><strong aria-hidden="true">3.1.</strong> async/await 的使用</a></li><li class="chapter-item expanded "><a href="async-await/Future-trait.html"><strong aria-hidden="true">3.2.</strong> Future trait</a></li><li class="chapter-item expanded "><a href="async-await/Generator.html"><strong aria-hidden="true">3.3.</strong> Generator</a></li><li class="chapter-item expanded "><a href="async-await/状态机.html"><strong aria-hidden="true">3.4.</strong> 状态机</a></li><li class="chapter-item expanded "><a href="async-await/Pin.html"><strong aria-hidden="true">3.5.</strong> Pin</a></li></ol></li><li class="chapter-item expanded "><a href="IO模型.html"><strong aria-hidden="true">4.</strong> IO 模型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="IO模型/阻塞IO.html"><strong aria-hidden="true">4.1.</strong> 阻塞 IO</a></li><li class="chapter-item expanded "><a href="IO模型/非阻塞IO.html"><strong aria-hidden="true">4.2.</strong> 非阻塞 IO</a></li><li class="chapter-item expanded "><a href="IO模型/信号驱动IO.html"><strong aria-hidden="true">4.3.</strong> 信号驱动 IO</a></li><li class="chapter-item expanded "><a href="IO模型/IO多路复用.html"><strong aria-hidden="true">4.4.</strong> IO 多路复用</a></li><li class="chapter-item expanded "><a href="IO模型/异步IO.html"><strong aria-hidden="true">4.5.</strong> 异步 IO</a></li></ol></li><li class="chapter-item expanded "><a href="Epoll.html"><strong aria-hidden="true">5.</strong> Epoll</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Epoll/Epoll介绍.html"><strong aria-hidden="true">5.1.</strong> Epoll 介绍</a></li><li class="chapter-item expanded "><a href="Epoll/Epoll-server-example.html"><strong aria-hidden="true">5.2.</strong> Epoll server example</a></li></ol></li><li class="chapter-item expanded "><a href="异步运行时.html" class="active"><strong aria-hidden="true">6.</strong> 异步运行时</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="异步运行时/epoll.html"><strong aria-hidden="true">6.1.</strong> epoll</a></li><li class="chapter-item expanded "><a href="异步运行时/reactor.html"><strong aria-hidden="true">6.2.</strong> reactor</a></li><li class="chapter-item expanded "><a href="异步运行时/async_io.html"><strong aria-hidden="true">6.3.</strong> async_io</a></li><li class="chapter-item expanded "><a href="异步运行时/task.html"><strong aria-hidden="true">6.4.</strong> task</a></li><li class="chapter-item expanded "><a href="异步运行时/executor.html"><strong aria-hidden="true">6.5.</strong> executor</a></li><li class="chapter-item expanded "><a href="异步运行时/example.html"><strong aria-hidden="true">6.6.</strong> example</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -146,16 +146,47 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="异步运行时"><a class="header" href="#异步运行时">异步运行时</a></h1>
-<p>施工中。。。。。。</p>
+<p>在前面的章节中，我们讲到过异步运行时负责调度执行使用者创建的 <code>Future</code>，那么异步运行时到底是如何工作的呢？在本章中，我们将会实现一个简单的单线程异步运行时，提供异步的网络IO读写操作，以探讨运行时的具体工作机制。</p>
+<p>在正式开始之前，我们首先明确一下即将实现的运行时的工作原理：</p>
+<p><img src="imgs/async-runtime.png" alt="" /></p>
+<ol>
+<li>
+<p>用户使用 <code>async fn</code> 或者 <code>async {}</code> 的方式创建 <code>Non-Leaf Future</code>，然后使用 <code>spawn</code> 方法创建一个异步 <code>task</code>，并将这个 <code>task</code> 发送到 <code>executor</code> 的任务队列中。</p>
+</li>
+<li>
+<p><code>executor</code> 从 <code>task_queue</code> 中取出 <code>task</code>，调用<code>task</code> 的 <code>poll</code> 方法，驱动 <code>Non-Leaf Future</code> 开始执行（如果已经开始执行了，则从上次的 <code>await</code> 断点处继续执行），就这样一直执行 <code>Future</code> 中的代码，直到遇到 <code>Leaf Future.await</code>。</p>
+</li>
+<li>
+<p>调用 <code>Leaf Future</code> 的 <code>poll</code> 方法，如果 <code>Leaf Future</code> 对应的IO事件已经就绪，则直接返回 <code>Poll::Ready(data)</code>；如果对应的IO事件没有就绪，则调用 <code>Reactor</code> 的 <code>register</code> 方法注册等待的IO事件和 <code>waker</code>，然后 <code>Poll::Pending</code>（<code>Non-Leaf Future</code> 将会被挂起），<code>executor</code> 可以继续执行其他的 <code>task</code>。</p>
+</li>
+<li>
+<p><code>Reactor</code> 会把注册的文件描述符 <code>fd</code>、<code>waker</code> 保存在<code>BTreeMap&lt;fd, waker&gt;</code> 中，然后调用 <code>Epoll</code> 提供的方法注册在 <code>fd</code> 上想要等待的 <code>event</code> 到 <code>Epoll</code> 系统中。</p>
+</li>
+<li>
+<p><code>Reactor</code> 调用 <code>Epoll</code> 提供的 <code>wait</code> 方法获取所有就绪的文件描述符 <code>fds</code>，然后遍历 <code>fds</code>，通过 <code>fd</code> 匹配之前在 <code>BTreeMap</code> 中存储的 <code>waker</code>，然后调用 <code>waker</code> 的 <code>wake</code> 方法把 <code>task</code> 发送到 <code>executor</code> 的执行队列中，这样之前挂起的 <code>Non-Leaf Future</code> 就能够继续执行了。</p>
+</li>
+</ol>
+<p>通过上面的原理讲解我们可以知道，异步代码之所以高效的原因就是避免了IO对线程的阻塞：</p>
+<ul>
+<li>
+<p>当执行一个 <code>task</code> 时，如果遇到了没有就绪的 IO 操作，就注册 <code>waker</code> 到 <code>Reactor</code> 中，然后挂起这个 <code>task</code>，<code>executor</code> 就可以继续执行其他的 <code>task</code>。</p>
+</li>
+<li>
+<p>当 <code>task</code> 等待的 IO 事件就绪时，<code>Reactor</code> 就会通过 <code>waker</code> 唤醒关联的 <code>task</code>，然后就可以执行之前挂起的 <code>task</code> 了。</p>
+</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="Epoll-server-example.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="Epoll/Epoll-server-example.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
+                            <a rel="next" href="异步运行时/epoll.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -163,10 +194,13 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="Epoll-server-example.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="Epoll/Epoll-server-example.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
+                    <a rel="next" href="异步运行时/epoll.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>

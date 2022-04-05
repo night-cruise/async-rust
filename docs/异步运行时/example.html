@@ -1,0 +1,357 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>example - async in rust</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A book which aims to introduce the theory and mechanism of async/await syntax and async runtime in the Rust.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../异步编程.html"><strong aria-hidden="true">2.</strong> 异步编程</a></li><li class="chapter-item expanded "><a href="../async-await.html"><strong aria-hidden="true">3.</strong> async/await</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../async-await/async-await的使用.html"><strong aria-hidden="true">3.1.</strong> async/await 的使用</a></li><li class="chapter-item expanded "><a href="../async-await/Future-trait.html"><strong aria-hidden="true">3.2.</strong> Future trait</a></li><li class="chapter-item expanded "><a href="../async-await/Generator.html"><strong aria-hidden="true">3.3.</strong> Generator</a></li><li class="chapter-item expanded "><a href="../async-await/状态机.html"><strong aria-hidden="true">3.4.</strong> 状态机</a></li><li class="chapter-item expanded "><a href="../async-await/Pin.html"><strong aria-hidden="true">3.5.</strong> Pin</a></li></ol></li><li class="chapter-item expanded "><a href="../IO模型.html"><strong aria-hidden="true">4.</strong> IO 模型</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../IO模型/阻塞IO.html"><strong aria-hidden="true">4.1.</strong> 阻塞 IO</a></li><li class="chapter-item expanded "><a href="../IO模型/非阻塞IO.html"><strong aria-hidden="true">4.2.</strong> 非阻塞 IO</a></li><li class="chapter-item expanded "><a href="../IO模型/信号驱动IO.html"><strong aria-hidden="true">4.3.</strong> 信号驱动 IO</a></li><li class="chapter-item expanded "><a href="../IO模型/IO多路复用.html"><strong aria-hidden="true">4.4.</strong> IO 多路复用</a></li><li class="chapter-item expanded "><a href="../IO模型/异步IO.html"><strong aria-hidden="true">4.5.</strong> 异步 IO</a></li></ol></li><li class="chapter-item expanded "><a href="../Epoll.html"><strong aria-hidden="true">5.</strong> Epoll</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Epoll/Epoll介绍.html"><strong aria-hidden="true">5.1.</strong> Epoll 介绍</a></li><li class="chapter-item expanded "><a href="../Epoll/Epoll-server-example.html"><strong aria-hidden="true">5.2.</strong> Epoll server example</a></li></ol></li><li class="chapter-item expanded "><a href="../异步运行时.html"><strong aria-hidden="true">6.</strong> 异步运行时</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../异步运行时/epoll.html"><strong aria-hidden="true">6.1.</strong> epoll</a></li><li class="chapter-item expanded "><a href="../异步运行时/reactor.html"><strong aria-hidden="true">6.2.</strong> reactor</a></li><li class="chapter-item expanded "><a href="../异步运行时/async_io.html"><strong aria-hidden="true">6.3.</strong> async_io</a></li><li class="chapter-item expanded "><a href="../异步运行时/task.html"><strong aria-hidden="true">6.4.</strong> task</a></li><li class="chapter-item expanded "><a href="../异步运行时/executor.html"><strong aria-hidden="true">6.5.</strong> executor</a></li><li class="chapter-item expanded "><a href="../异步运行时/example.html" class="active"><strong aria-hidden="true">6.6.</strong> example</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">async in rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/night-cruise/async-rust" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="example"><a class="header" href="#example">example</a></h1>
+<p>在这一节中，我们将使用之前实现的异步运行时创建一个 <code>tcp echo server</code>。需要导入的模块如下所示：</p>
+<pre><code class="language-rust noplayground">use std::env;
+use std::io::Write;
+
+use log::info;
+
+use async_runtime::async_io::{Ipv4Addr, TcpListener, TcpStream};
+use async_runtime::executor::{spawner_and_executor, Spawner};
+</code></pre>
+<h2 id="日志打印"><a class="header" href="#日志打印">日志打印</a></h2>
+<pre><code class="language-rust noplayground">fn init_log() {
+    // format = [file:line] msg
+    env::set_var(&quot;RUST_LOG&quot;, &quot;info&quot;);
+    env_logger::Builder::from_default_env()
+        .format(|buf, record| {
+            writeln!(
+                buf,
+                &quot;[{}:{:&gt;3}] {}&quot;,
+                record.file().unwrap_or(&quot;unknown&quot;),
+                record.line().unwrap_or(0),
+                record.args(),
+            )
+        })
+        .init();
+}
+</code></pre>
+<p><code>init_log</code> 函数是为了设置日志打印的消息格式，这跟异步运行时的使用没啥关系，这里就不再赘述了。</p>
+<h2 id="handle_client"><a class="header" href="#handle_client">handle_client</a></h2>
+<pre><code class="language-async">async fn handle_client(stream: TcpStream) {
+    let mut buf = [0u8; 1024];
+    info!(&quot;(handle client) {}&quot;, stream.raw_fd());
+    loop {
+        let n = stream.read(&amp;mut buf).await.unwrap();
+        if n == 0 {
+            break;
+        }
+        stream.write(&amp;buf[..n]).await.unwrap();
+    }
+}
+</code></pre>
+<p>在 <code>handle_client</code> 函数中，我们首先创建一个 <code>buf</code> 数组，然后打印一个 <code>handle client</code> 的日志消息，接着开启一个无限循环：</p>
+<ul>
+<li>
+<p>调用 <code>stream.read(&amp;mut buf)</code> 方法后会返回一个 <code>ReadFuture</code>，在 <code>ReadFuture</code> 上调用 <code>await</code> 方法：</p>
+<ul>
+<li>
+<p><code>ReadFuture.await</code> 会展开成一个无限循环，在循环内部会调用 <code>ReadFuture</code> 的 <code>poll</code> 方法。</p>
+</li>
+<li>
+<p>如果返回 <code>Poll::Pending</code>，则使用 <code>Yield</code> 表达式挂起当前的 <code>task</code>；</p>
+</li>
+<li>
+<p>如果返回 <code>poll::Ready</code> 则中断循环并返回结果。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>如果 <code>n== 0</code>，则说明客户端已经断开了连接，则退出循环。</p>
+</li>
+<li>
+<p>调用 <code>stream.write(&amp;mut buf[.n])</code> 会返回一个 <code>WriteFuture</code>，在 <code>WriteFuture</code> 上调用 <code>await</code> 方法后执行流程与 <code>ReadFuture</code> 一致。</p>
+</li>
+</ul>
+<h2 id="server_loop"><a class="header" href="#server_loop">server_loop</a></h2>
+<pre><code class="language-rust noplayground">async fn server_loop(spawner: Spawner) {
+    let addr = Ipv4Addr::new(127, 0, 0, 1);
+    let port = 8080;
+    let listener = TcpListener::bind(addr, port).unwrap();
+
+    let incoming = listener.incoming();
+
+    while let Some(stream) = incoming.next().await {
+        let stream = stream.unwrap();
+        spawner.spawn(handle_client(stream));
+    }
+}
+</code></pre>
+<p>在 <code>server_loop</code> 函数中，我们调用 <code>TcpListener</code> 的 <code>bind</code> 方法创建一个 <code>TcpListener</code> 实例，然后调用 <code>incoming</code> 方法创建一个 <code>Incoming</code> 实例。</p>
+<p>接着，在 <code>While let</code> 循环中，调用 <code>incoming</code> 的 <code>next</code> 方法返回一个 <code>AcceptFuture</code> 实例，在 <code>AcceptFuture</code> 上调用 <code>await</code> 方法后，如果返回的 <code>Poll::Pending</code>，则挂起当前的 <code>task</code>。</p>
+<p>当有客户端连接到来时，<code>AcceptFuture</code> 等待的 IO 事件就绪，会返回 <code>io::Readult&lt;TcpStream&gt;</code> 的实例并绑定到 <code>stream</code> 变量上，接着使用 <code>spawner</code> 调用 <code>spawn</code> 方法创建一个 <code>task</code> 处理与客户端的交互。</p>
+<p>最后，又进入循环的开始位置，继续等待新的连接到来。</p>
+<h2 id="main-函数"><a class="header" href="#main-函数">main 函数</a></h2>
+<pre><code class="language-rust noplayground">fn main() {
+    init_log();
+
+    let (spawner, mut executor) = spawner_and_executor();
+
+    spawner.spawn(server_loop(spawner.clone()));
+
+    executor.run();
+}
+</code></pre>
+<p>在 <code>main</code> 函数中，我们首先调用 <code>init_log</code> 函数设置日志消息格式，接着使用 <code>spawner_and_executor</code> 函数创建 <code>Spawner</code> 和 <code>Executor</code> 的实例。</p>
+<p>然后调用 <code>spawner.spawn</code> 方法创建一个 <code>task</code> 用于执行 <code>server_loop</code>。</p>
+<p>最后调用 <code>executor.run()</code> 方法开启 <code>executor</code> 的运行，开始调度执行各个 <code>task</code>。</p>
+<h2 id="运行示例"><a class="header" href="#运行示例">运行示例</a></h2>
+<p>开启运行后的 <code>echo server</code> 会监听地址：<code>127.0.0.1:8080</code>：</p>
+<pre><code class="language-rust noplayground">cargo run --example echo_server
+    Finished dev [unoptimized + debuginfo] target(s) in 0.69s
+     Running `target/debug/examples/echo_server`
+[src/async_io.rs: 56] (TcpListener) listen: 3
+[src/reactor.rs: 27] (Reactor) add event: 3
+[src/reactor.rs: 35] Start reactor main loop
+</code></pre>
+<p>使用 <code>Python</code> 写一个小脚本模拟 <code>TCP</code> 客户端：</p>
+<pre><code class="language-python">import socket
+import threading
+
+HOST = '127.0.0.1'
+PORT = 8080
+
+
+def send_request():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((HOST, PORT))
+    for i in range(1, 1025):
+        s.send(f&quot;HELLO WORLD[{i}]&quot;.encode())
+        data = s.recv(1024).decode()
+        print(f&quot;RECEIVE DATA: '{data}' in THREAD[{threading.currentThread().name}]&quot;)
+    s.close()
+
+
+def main():
+    t_lst = []
+    for _ in range(10):
+        t = threading.Thread(target=send_request)
+        t_lst.append(t)
+        t.start()
+
+    for t in t_lst:
+        t.join()
+
+
+if __name__ == '__main__':
+    main()
+</code></pre>
+<p>运行脚本，服务端会输出以下内容：</p>
+<pre><code>.....
+.....
+.....
+[src/reactor.rs: 43] (Reactor) wake up. nfd = 2
+[src/reactor.rs: 49] (Reactor) delete event: 6
+[src/reactor.rs: 49] (Reactor) delete event: 7
+[src/reactor.rs: 43] (Reactor) wake up. nfd = 3
+[src/reactor.rs: 49] (Reactor) delete event: 9
+[src/reactor.rs: 27] (Reactor) add event: 6
+[src/reactor.rs: 49] (Reactor) delete event: 10
+[src/reactor.rs: 49] (Reactor) delete event: 11
+[src/reactor.rs: 43] (Reactor) wake up. nfd = 2
+</code></pre>
+<p>客户端的输出内容如下所示：</p>
+<pre><code>.....
+.....
+.....
+RECEIVE DATA: 'HELLO WORLD[1022]' in THREAD[Thread-3]
+RECEIVE DATA: 'HELLO WORLD[1015]' in THREAD[Thread-7]
+RECEIVE DATA: 'HELLO WORLD[1013]' in THREAD[Thread-6]
+RECEIVE DATA: 'HELLO WORLD[1021]' in THREAD[Thread-1]
+RECEIVE DATA: 'HELLO WORLD[1023]' in THREAD[Thread-3]
+RECEIVE DATA: 'HELLO WORLD[1008]' in THREAD[Thread-10]
+RECEIVE DATA: 'HELLO WORLD[1014]' in THREAD[Thread-6]
+RECEIVE DATA: 'HELLO WORLD[1016]' in THREAD[Thread-7]
+</code></pre>
+<p>可以看出，我们的 <code>echo server</code> 正确地返回了响应，<code>wake up. nfd = 3</code> 表示有3个事件同时就绪，这说明 <code>server</code> 确实在并发地处理多个请求！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../异步运行时/executor.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../异步运行时/executor.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>
