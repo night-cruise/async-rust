@@ -34,12 +34,6 @@ mdbook build --open
 
 
 
-## Todo
-
-* 异步运行时
-
-
-
 ## LICENSE
 
 这个项目使用 MIT 许可证，详细信息请查阅 [LICENSE](LICENSE) 文件。
