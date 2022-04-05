@@ -153,7 +153,7 @@ sr_2: { a: Hello, b: World }
 
 可以看出，在交换 `sr_1` 和 `sr_2`  后，字段 `a` 的数据也发生了交换，但是字段 `b` 的数据没有改变，仍然指向之前的位置，如图所示：
 
-![swap problem](imgs/swap_problem.jpg)
+![swap problem](../imgs/swap_problem.jpg)
 
 这意味着，`sr`（`sr_1`、`sr_2`）将不再是自引用结构体，并保存了一个指向其他对象的裸指针。因此，`sr` 的字段 `b` 的生命周期将不再和其结构体本身相关联，我们将难以保证 `sr.b` 指针不会变成悬垂指针。
 

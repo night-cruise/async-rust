@@ -2,7 +2,7 @@
 
 对于异步 IO 来说，读操作的流程如下所示：
 
-![Asynchronous IO Model](imgs/Asynchronous-IO.png)
+![Asynchronous IO Model](../imgs/Asynchronous-IO.png)
 
 当用户进程发起异步框架 `AIO` 提供的 `aio_read` 系统调用后，这个系统调用会马上返回。内核会准备好数据然后把数据从内核缓冲区拷贝到用户进程缓冲区，当 IO 的两个阶段都完成后，内核会发送一个信号通知用户进程 `read` 操作完成了。
 

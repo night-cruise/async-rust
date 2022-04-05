@@ -2,7 +2,7 @@
 
 对于信号驱动 IO 来说，读操作的流程如下所示：
 
-![Signal Driven IO](imgs/Signal-Driven-IO.png)
+![Signal Driven IO](../imgs/Signal-Driven-IO.png)
 
 当用户进程发起 `sigaction` 系统调用后，这个系统调用会马上返回。内核在准备好数据后会向用户进程发送 `SIGIO` 信号，用户进程收到信号之后会在信号处理程序中发起 `recvfrom` 系统调用将数据从内核缓冲区复制到用户进程缓冲区中，至此 IO 的两个阶段全部完成。
 
