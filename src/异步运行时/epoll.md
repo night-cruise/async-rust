@@ -15,8 +15,6 @@ macro_rules! syscall {
 }
 ```
 
-
-
 ## Epoll 抽象
 
 抽象出 `Epoll` 和 `EpollEventType` 类型：
@@ -35,8 +33,6 @@ pub(crate) enum EpollEventType {
 
 `RawFd` 表示原始文件描述符。
 
-
-
 ## 方法实现
 
 ### new
@@ -49,8 +45,6 @@ pub(crate) fn new() -> io::Result<Self> {
     Ok(Epoll { fd })
 }
 ```
-
-
 
 ### 添加事件/修改事件
 
@@ -81,8 +75,6 @@ pub(crate) fn mod_event(&self, fd: RawFd, op: EpollEventType) -> io::Result<()> 
 
 `add_event` 和 `mod_event` 都是通过调用`run_ctl` 方法实现的。在 `run_ctl` 方法中根据 `op` 类型设置要注册/修改的事件类型，然后调用 `epoll_ctl` 方法来注册/修改事件。
 
-
-
 ### 删除事件
 
 ```rust,noplayground
@@ -100,8 +92,6 @@ pub(crate) fn del_event(&self, fd: RawFd) -> io::Result<()> {
 
 删除在 `Epoll` 实例中注册描述符 `fd`。
 
-
-
 ### 等待就绪事件
 
 ```rust,noplayground
@@ -118,8 +108,6 @@ pub(crate) fn wait(&self, events: &mut [libc::epoll_event]) -> io::Result<usize>
 ```
 
 调用 `epoll_wait` 函数获取所有就绪的文件描述符，并将就绪的描述符存放到 `events` 中，最后返回就绪的描述符数量。
-
-
 
 ## 关闭Epoll
 

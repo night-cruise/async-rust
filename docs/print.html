@@ -665,10 +665,10 @@ fn main() {
     let mut gen = || {
         yield 1;
         yield 2;
-        
+
         ()
     };
-    
+
     loop {
         match Pin::new(&amp;mut gen).resume(()) {
             GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
@@ -688,7 +688,7 @@ use std::ops::{Generator, GeneratorState};
 
 fn main() {
     let mut gen = Gen::new();
-    
+
     loop {
         match Pin::new(&amp;mut gen).resume(()) {
             GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
@@ -718,7 +718,7 @@ struct State2 {
 impl&lt;R&gt; Generator&lt;R&gt; for Gen {
     type Yield = i32;
     type Return = ();
-    
+
     fn resume(self: Pin&lt;&amp;mut Self&gt;, _arg: R) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt; {
         let mut_gen = self.get_mut();
         match std::mem::replace(mut_gen, Gen::Exit) {
@@ -747,7 +747,6 @@ impl Gen {
 </code></pre></pre>
 <p>同时，由于每个 <code>async</code> 函数最终都会生成一个状态机，并且每个可执行文件都会捆绑一个异步运行时，这会导致异步的 Rust 代码在编译后产生更大的二进制体积，这也是 <code>async</code> Rust 的一个小缺点。</p>
 <blockquote>
-<p>小知识：基于状态机实现的协程，也被称为无栈协程，这与有栈协程相对应。</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pin"><a class="header" href="#pin">Pin</a></h1>
 <p>前文的 <code>Future trait</code>、<code>Geneartor</code> 和状态机中都出现了 <code>Pin</code>，那么 <code>Pin</code> 到底有什么用呢？ 在本节中，我们将会详细地介绍它。</p>
@@ -1592,7 +1591,7 @@ I/O 模 型  +---+
                                  +-+-+-+-+-+ windows (IOCP)
 </code></pre>
 <p>最后，各个 IO 模型的比较如下所示：</p>
-<p><img src="IO%E6%A8%A1%E5%9E%8B/imgs/Comparison-IO-Model.png" alt="Comparison of the IO Models" /></p>
+<img title="" src="IO模型/../imgs/Comparison-IO-Model.png" alt="Comparison of the IO Models" data-align="inline">
 <div style="break-before: page; page-break-before: always;"></div><h1 id="epoll"><a class="header" href="#epoll">Epoll</a></h1>
 <p><code>Epoll</code> 本质上是一种 IO 事件通知机制，是前文所述的在 Linux 中 IO 多路复用的一种实现。在本章中，我们将会简略介绍 <code>Epoll</code> 的原理，并使用 <code>Epoll</code> 实现一个简单的 <code>echo server</code>。</p>
 <p>在最后一章《异步运行时》中，我们也会使用 <code>Epoll</code> 作为基础来实现一个 <code>Reactor</code>（<code>Reactor</code> 的概念会在后面介绍）。</p>
@@ -1749,7 +1748,7 @@ pub fn epoll_create() -&gt; io::Result&lt;RawFd&gt; {
     // fcntl(fd, libc::F_GETFD) 函数返回与 fd 关联的 close_on_exec 标志
     // close_on_exec 用于确定在系统调用 execve() 后是否需要关闭文件描述符
     if let Ok(flags) = syscall!(fcntl(fd, libc::F_GETFD)) {
-        
+
         // 设置在系统调用 execve() 后关闭文件描述符 fd
         let _ = syscall!(fcntl(fd, libc::F_SETFD, flags | libc::FD_CLOEXEC));
     }
@@ -1808,7 +1807,7 @@ pub fn close(fd: RawFd) {
 
 /// 创建一个读事件
 pub fn listener_read_event(key: u64) -&gt; libc::epoll_event {
-	// key 用于区分不同的文件描述符
+    // key 用于区分不同的文件描述符
     libc::epoll_event {
         events: READ_FLAGS as u32,
         u64: key,
@@ -1820,7 +1819,7 @@ pub fn listener_read_event(key: u64) -&gt; libc::epoll_event {
 
 /// 创建一个写事件
 pub fn listener_write_event(key: u64) -&gt; libc::epoll_event {
-	// key 用于区分不同的文件描述符
+    // key 用于区分不同的文件描述符
     libc::epoll_event {
         events: WRITE_FLAGS as u32,
         u64: key,
@@ -1864,12 +1863,12 @@ pub struct RequestContext {
 <h3 id="从-stream-流中读取数据"><a class="header" href="#从-stream-流中读取数据">从 stream 流中读取数据</a></h3>
 <pre><code class="language-rust noplayground">pub fn read_cb(&amp;mut self, key: u64, epoll_fd: RawFd) -&gt; io::Result&lt;()&gt; {
     let mut buf = [0u8; 4096];
-    
+
     // 从 stream 流中读取数据写入到 buf 中
     match self.stream.read(&amp;mut buf) {
         Ok(_) =&gt; {
             if let Ok(data) = std::str::from_utf8(&amp;buf) {
-            
+
                 // 解析并且设置读取到的 HTTP 请求的 content-length 字段的值
                 self.parse_and_set_content_length(data);
             }
@@ -1879,18 +1878,18 @@ pub struct RequestContext {
             return Err(e);
         }
     };
-    
+
     // 将读取的数据扩展到 RequestContext 的 buf 中
     self.buf.extend_from_slice(&amp;buf);
-    
+
     // 如果 buf 中的数据长度大于等于 content-length，说明从客户端发送的 HTTP 请求已经读取完毕
     if self.buf.len() &gt;= self.content_length {
         println!(&quot;got all data: {} bytes&quot;, self.buf.len());
-        
+
         // 将在 stream 上监听的事件修改为写事件
         modify_interest(epoll_fd, self.stream.as_raw_fd(), listener_write_event(key))?;
     } else {
-    
+
         // 将在 stream 上监听的事件修改为读事件，继续读取剩下的 HTTP 请求
         modify_interest(epoll_fd, self.stream.as_raw_fd(), listener_read_event(key))?;
     }
@@ -1928,26 +1927,25 @@ Hello! I am an epoll server.&quot;#;
 
 /// 将要返回的 HTTP 数据写入到 stream 流中
 pub fn write_cb(&amp;mut self, key: u64, epoll_fd: RawFd) -&gt; io::Result&lt;()&gt; {
-	// 写入数据到 stream 流中
+    // 写入数据到 stream 流中
     match self.stream.write(HTTP_RESP) {
         Ok(_) =&gt; println!(&quot;answered from request {}&quot;, key),
         Err(e) =&gt; eprintln!(&quot;could not answer to request {}, {}&quot;, key, e),
     };
-    
+
     // 关闭 stream 流
     self.stream.shutdown(std::net::Shutdown::Both)?;
-    
+
     let fd = self.stream.as_raw_fd();
     // 移除在 epoll 中注册的文件描述符 fd
     remove_interest(epoll_fd, fd)?;
-    
+
     // 关闭文件描述符 fd
     close(fd);
 
     Ok(())
 }
 </code></pre>
-<p><code>HTTP</code> 协议是无状态的，我们在完整处理一次请求后就删除在 <code>epoll</code> 中注册的文件描述符，并关闭该文件描述符。</p>
 <h2 id="main-模块"><a class="header" href="#main-模块">main 模块</a></h2>
 <p>接下来，我们将会编写 <code>server</code> 的入口函数，主要的逻辑为：注册文件描述符  =&gt;  调用 <code>epoll_wait</code> 获取就绪的事件  =&gt;  根据不同的事件进行处理。</p>
 <pre><code class="language-rust noplayground">use std::collections::HashMap;
@@ -1962,25 +1960,25 @@ use rust_epoll_example::syscall;
 fn main() -&gt; io::Result&lt;()&gt; {
     // 存储 RequestContext 实例，key 用来区分不同的 RequestContext
     let mut request_contexts: HashMap&lt;u64, RequestContext&gt; = HashMap::new();
-    
+
     // 存储就绪的 event
     let mut events: Vec&lt;libc::epoll_event&gt; = Vec::with_capacity(1024);
-    
+
     // key 对应 epoll_event 中的 u64 字段，用于区分文件描述、RequestContext
     let mut key = 100;
 
     // 创建一个 listener，并监听 8000 端口
     let listener = TcpListener::bind(&quot;127.0.0.1:8000&quot;)?;
-    
+
     // 将 socket 设置为非阻塞
     listener.set_nonblocking(true)?;
-    
+
     // 获取 listener 对应文件描述符
     let listener_fd = listener.as_raw_fd();
 
     // 创建 epoll 实例，返回 epoll 文件描述符
     let epoll_fd = epoll_create().expect(&quot;can create epoll queue&quot;);
-    
+
     // 在 epoll 实例中注册 listener 文件描述符，并监听读事件
     // key 等于 100，对应 listener 文件描述符
     add_interest(epoll_fd, listener_fd, listener_read_event(key))?;
@@ -1988,7 +1986,7 @@ fn main() -&gt; io::Result&lt;()&gt; {
     loop {
         println!(&quot;requests in flight: {}&quot;, request_contexts.len());
         events.clear();
-        
+
         // 将就绪的事件添加到 events vec 中，返回就绪的事件数量
         let res = match syscall!(epoll_wait(
             epoll_fd,
@@ -2010,53 +2008,53 @@ fn main() -&gt; io::Result&lt;()&gt; {
                 // key = 100 说明是在 listener fd 上监听的读事件就绪了
                 100 =&gt; {
                     match listener.accept() {
-                    
+
                         // stream 是与客户端建立的连接的 stream 流
                         Ok((stream, addr)) =&gt; {
                             // 设置为非阻塞
                             stream.set_nonblocking(true)?;
-                            
+
                             // 有一个新的连接来了
                             println!(&quot;new client: {}&quot;, addr);
                             key += 1;
-                            
+
                             // 在 epoll 中注册 stream 文件描述符，并监听读事件
                             add_interest(epoll_fd, stream.as_raw_fd(), listener_read_event(key))?;
-                            
+
                             // 创建一个 RequestContext，并保存到 request_contexts 中
                             request_contexts.insert(key, RequestContext::new(stream));
                             // 上面使用的 key，用来区分不同的文件描述符和 RequestContext
                         }
                         Err(e) =&gt; eprintln!(&quot;couldn't accept: {}&quot;, e),
                     };
-                    
+
                     // 修改在 listener fd 上监听的的事件为读事件（继续等待新的连接到来）
                     modify_interest(epoll_fd, listener_fd, listener_read_event(100))?;
                 }
                 // key != 100，说明是其他的 fd 上监听的事件就绪了
                 key =&gt; {
                     let mut to_delete = None;
-                    
+
                     // 获取这个 key 对应的 RequestContext
                     if let Some(context) = request_contexts.get_mut(&amp;key) {
-                    
+
                         let events: u32 = ev.events;
-                        
+
                         // 匹配就绪的事件是读事件还是写事件
                         match events {
-                        
+
                             // 读事件就绪
                             v if v as i32 &amp; libc::EPOLLIN == libc::EPOLLIN =&gt; {
-                            
+
                                 // 读取请求数据
                                 context.read_cb(key, epoll_fd)?;
                             }
                             // 写事件就绪
                             v if v as i32 &amp; libc::EPOLLOUT == libc::EPOLLOUT =&gt; {
-                            
+
                                 // 写入返回数据
                                 context.write_cb(key, epoll_fd)?;
-                                
+
                                 // 返回数据后，就删除对应的 RequestContext，
                                 // 当客户端再次发起请求时会建立新的连接，创建新的 RequestContext
                                 to_delete = Some(key);
@@ -2064,7 +2062,7 @@ fn main() -&gt; io::Result&lt;()&gt; {
                             v =&gt; println!(&quot;unexpected events: {}&quot;, v),
                         };
                     }
-                    
+
                     // 写事件处理完毕，删除对应的 RequestContext
                     if let Some(key) = to_delete {
                         request_contexts.remove(&amp;key);
@@ -2075,7 +2073,7 @@ fn main() -&gt; io::Result&lt;()&gt; {
     }
 }
 </code></pre>
-<p>与上一节相同，<code>HTTP</code> 协议是无状态的，我们在完整处理一次请求后就删除对应的请求上下文，当客户端再次发起请求时会建立新的连接，创建新的请求上下文。</p>
+<p><code>HTTP</code> 协议是无状态的，我们在完整处理一次请求后就删除对应的请求上下文，当客户端再次发起请求时会建立新的连接，创建新的请求上下文。</p>
 <p>至此，<code>epoll server</code> 编写完毕，源代码的仓库地址：<a href="https://github.com/night-cruise/rust-epoll-example">rust epoll example</a>。</p>
 <h2 id="运行-server"><a class="header" href="#运行-server">运行 server</a></h2>
 <p>使用 <code>cargo run</code> 启动 <code>server</code>，然后这个 <code>server</code> 会监听地址：<a href="http://127.0.0.1:8000/">http://127.0.0.1:8000</a> 。</p>

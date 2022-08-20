@@ -158,10 +158,10 @@ fn main() {
     let mut gen = || {
         yield 1;
         yield 2;
-        
+
         ()
     };
-    
+
     loop {
         match Pin::new(&amp;mut gen).resume(()) {
             GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
@@ -181,7 +181,7 @@ use std::ops::{Generator, GeneratorState};
 
 fn main() {
     let mut gen = Gen::new();
-    
+
     loop {
         match Pin::new(&amp;mut gen).resume(()) {
             GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
@@ -211,7 +211,7 @@ struct State2 {
 impl&lt;R&gt; Generator&lt;R&gt; for Gen {
     type Yield = i32;
     type Return = ();
-    
+
     fn resume(self: Pin&lt;&amp;mut Self&gt;, _arg: R) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt; {
         let mut_gen = self.get_mut();
         match std::mem::replace(mut_gen, Gen::Exit) {
@@ -240,7 +240,6 @@ impl Gen {
 </code></pre></pre>
 <p>同时，由于每个 <code>async</code> 函数最终都会生成一个状态机，并且每个可执行文件都会捆绑一个异步运行时，这会导致异步的 Rust 代码在编译后产生更大的二进制体积，这也是 <code>async</code> Rust 的一个小缺点。</p>
 <blockquote>
-<p>小知识：基于状态机实现的协程，也被称为无栈协程，这与有栈协程相对应。</p>
 </blockquote>
 
                     </main>

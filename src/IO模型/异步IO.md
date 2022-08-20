@@ -10,8 +10,6 @@
 
 > 题外话：实际上 `AIO` 并不理想，因此之前的 Linux 异步 IO 在实际中应用的并不多。直到2019年在 Linux 5.1 中首次引入了 `io_uring` 高性能异步 IO 框架，让 Linux 异步 IO 变得有可能真正流行起来。`tokio-rs` 提供的 [tokio-uring](https://github.com/tokio-rs/tokio-uring) 就是一个使用 `io_uring` 实现的异步运行时。
 
-
-
 ## 总结
 
 `POSIX` 对同步 IO 和异步 IO 的定义如下：
@@ -43,4 +41,4 @@ I/O 模 型  +---+
 
 最后，各个 IO 模型的比较如下所示：
 
-![Comparison of the IO Models](imgs/Comparison-IO-Model.png)
+<img title="" src="../imgs/Comparison-IO-Model.png" alt="Comparison of the IO Models" data-align="inline">
