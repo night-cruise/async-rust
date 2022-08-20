@@ -150,9 +150,6 @@
 <p><img src="../imgs/Asynchronous-IO.png" alt="Asynchronous IO Model" /></p>
 <p>当用户进程发起异步框架 <code>AIO</code> 提供的 <code>aio_read</code> 系统调用后，这个系统调用会马上返回。内核会准备好数据然后把数据从内核缓冲区拷贝到用户进程缓冲区，当 IO 的两个阶段都完成后，内核会发送一个信号通知用户进程 <code>read</code> 操作完成了。</p>
 <p>因此，<strong>对于异步 IO 来说，用户进程在 IO 的两个阶段都不会被阻塞</strong>。</p>
-<blockquote>
-<p>题外话：实际上 <code>AIO</code> 并不理想，因此之前的 Linux 异步 IO 在实际中应用的并不多。直到2019年在 Linux 5.1 中首次引入了 <code>io_uring</code> 高性能异步 IO 框架，让 Linux 异步 IO 变得有可能真正流行起来。<code>tokio-rs</code> 提供的 <a href="https://github.com/tokio-rs/tokio-uring">tokio-uring</a> 就是一个使用 <code>io_uring</code> 实现的异步运行时。</p>
-</blockquote>
 <h2 id="总结"><a class="header" href="#总结">总结</a></h2>
 <p><code>POSIX</code> 对同步 IO 和异步 IO 的定义如下：</p>
 <ul>
@@ -179,7 +176,7 @@ I/O 模 型  +---+
                                  +-+-+-+-+-+ windows (IOCP)
 </code></pre>
 <p>最后，各个 IO 模型的比较如下所示：</p>
-<img title="" src="../imgs/Comparison-IO-Model.png" alt="Comparison of the IO Models" data-align="inline">
+<p><img src="../imgs/Comparison-IO-Model.png" alt="Comparison IO Model" /></p>
 
                     </main>
 

@@ -1562,9 +1562,6 @@ Complete: ()
 <p><img src="IO%E6%A8%A1%E5%9E%8B/../imgs/Asynchronous-IO.png" alt="Asynchronous IO Model" /></p>
 <p>当用户进程发起异步框架 <code>AIO</code> 提供的 <code>aio_read</code> 系统调用后，这个系统调用会马上返回。内核会准备好数据然后把数据从内核缓冲区拷贝到用户进程缓冲区，当 IO 的两个阶段都完成后，内核会发送一个信号通知用户进程 <code>read</code> 操作完成了。</p>
 <p>因此，<strong>对于异步 IO 来说，用户进程在 IO 的两个阶段都不会被阻塞</strong>。</p>
-<blockquote>
-<p>题外话：实际上 <code>AIO</code> 并不理想，因此之前的 Linux 异步 IO 在实际中应用的并不多。直到2019年在 Linux 5.1 中首次引入了 <code>io_uring</code> 高性能异步 IO 框架，让 Linux 异步 IO 变得有可能真正流行起来。<code>tokio-rs</code> 提供的 <a href="https://github.com/tokio-rs/tokio-uring">tokio-uring</a> 就是一个使用 <code>io_uring</code> 实现的异步运行时。</p>
-</blockquote>
 <h2 id="总结"><a class="header" href="#总结">总结</a></h2>
 <p><code>POSIX</code> 对同步 IO 和异步 IO 的定义如下：</p>
 <ul>
@@ -1591,7 +1588,7 @@ I/O 模 型  +---+
                                  +-+-+-+-+-+ windows (IOCP)
 </code></pre>
 <p>最后，各个 IO 模型的比较如下所示：</p>
-<img title="" src="IO模型/../imgs/Comparison-IO-Model.png" alt="Comparison of the IO Models" data-align="inline">
+<p><img src="IO%E6%A8%A1%E5%9E%8B/../imgs/Comparison-IO-Model.png" alt="Comparison IO Model" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="epoll"><a class="header" href="#epoll">Epoll</a></h1>
 <p><code>Epoll</code> 本质上是一种 IO 事件通知机制，是前文所述的在 Linux 中 IO 多路复用的一种实现。在本章中，我们将会简略介绍 <code>Epoll</code> 的原理，并使用 <code>Epoll</code> 实现一个简单的 <code>echo server</code>。</p>
 <p>在最后一章《异步运行时》中，我们也会使用 <code>Epoll</code> 作为基础来实现一个 <code>Reactor</code>（<code>Reactor</code> 的概念会在后面介绍）。</p>
