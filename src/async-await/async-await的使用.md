@@ -70,10 +70,10 @@ async fn blocks() {
     let s = String::new("Hello World");
     let future_one = async {
         println!("{:?}", s);
-    }
+    };
     let future_two = async {
         println!("{:?}", s);
-    }
+    };
     
     executor::join(future_one, future_two);
 }
