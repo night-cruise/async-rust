@@ -80,7 +80,7 @@ async fn blocks() {
 
 // s 被 move 进行 async 块中，因此只能在该 async 块内才能访问 
 fn move_block() -> impl Future<Output = ()> {
-    let s = String::new("Hello World");
+    let s = String::from("Hello World");
     async move {
         println!("{:?}", s);
     }
