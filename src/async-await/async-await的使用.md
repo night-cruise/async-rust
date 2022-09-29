@@ -70,12 +70,12 @@ async fn blocks() {
     let s = String::new("Hello World");
     let future_one = async {
         println!("{:?}", s);
-    }
+    };
     let future_two = async {
         println!("{:?}", s);
-    }
+    };
     
-    executor::join(future_one, future_two);
+    futures::future::join(future_one, future_two); // need run in cargo with futures crate
 }
 
 // s 被 move 进行 async 块中，因此只能在该 async 块内才能访问 
