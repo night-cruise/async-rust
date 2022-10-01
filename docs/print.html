@@ -283,17 +283,17 @@ async fn blocks() {
     let s = String::new(&quot;Hello World&quot;);
     let future_one = async {
         println!(&quot;{:?}&quot;, s);
-    }
+    };
     let future_two = async {
         println!(&quot;{:?}&quot;, s);
-    }
+    };
     
-    executor::join(future_one, future_two);
+    futures::future::join(future_one, future_two); // need run in cargo with futures crate
 }
 
 // s 被 move 进行 async 块中，因此只能在该 async 块内才能访问 
 fn move_block() -&gt; impl Future&lt;Output = ()&gt; {
-    let s = String::new(&quot;Hello World&quot;);
+    let s = String::from(&quot;Hello World&quot;);
     async move {
         println!(&quot;{:?}&quot;, s);
     }
@@ -322,7 +322,7 @@ fn move_block() -&gt; impl Future&lt;Output = ()&gt; {
 <p>通过 <code>Waker</code> 唤醒器，我们可以只在 <code>Future</code> 想要等待的事件就绪时，才去唤醒 <code>Future</code>。这样我们就不需要通过一个死循环不断的调用 <code>poll</code> 方法来驱动 <code>Future</code> 的执行，这是异步编程之所以高效的关键所在。</p>
 <h2 id="小栗子"><a class="header" href="#小栗子">小栗子</a></h2>
 <p>下面我们使用一个具体的例子来介绍 <code>Future trait</code> 的使用。</p>
-<p>假设我们准备读取一个 <code>socket</code>，但是它可能还有准备好数据。如果数据准备好了，我们就可以读取它然后然后返回 <code>Poll::Ready(data)</code>，但是如果数据没有准备好，我们可以注册一个唤醒器到“事件通知系统”中：</p>
+<p>假设我们准备读取一个 <code>socket</code>，但是它可能还没有准备好数据。如果数据准备好了，我们就可以读取它然后然后返回 <code>Poll::Ready(data)</code>，但是如果数据没有准备好，我们可以注册一个唤醒器到“事件通知系统”中：</p>
 <pre><code class="language-rust noplayground">struct SocketRead&lt;'a&gt; {
 	socket: &amp;'a Socket
 }
@@ -573,8 +573,7 @@ impl Iterator for MyGenerator {
 <h2 id="小栗子-1"><a class="header" href="#小栗子-1">小栗子</a></h2>
 <p>在本节的最后，我们通过一个小栗子把前面讲的 <code>async/await</code>、<code>Future</code>、<code>Generator</code> 的知识串联起来。</p>
 <p>有如下的代码：</p>
-<pre><pre class="playground"><code class="language-rust edition2021">
-<span class="boring">#![allow(unused)]
+<pre><pre class="playground"><code class="language-rust edition2021"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>#[inline(never)]
 async fn foo() -&gt; i32 {

@@ -168,7 +168,7 @@
 <p>通过 <code>Waker</code> 唤醒器，我们可以只在 <code>Future</code> 想要等待的事件就绪时，才去唤醒 <code>Future</code>。这样我们就不需要通过一个死循环不断的调用 <code>poll</code> 方法来驱动 <code>Future</code> 的执行，这是异步编程之所以高效的关键所在。</p>
 <h2 id="小栗子"><a class="header" href="#小栗子">小栗子</a></h2>
 <p>下面我们使用一个具体的例子来介绍 <code>Future trait</code> 的使用。</p>
-<p>假设我们准备读取一个 <code>socket</code>，但是它可能还有准备好数据。如果数据准备好了，我们就可以读取它然后然后返回 <code>Poll::Ready(data)</code>，但是如果数据没有准备好，我们可以注册一个唤醒器到“事件通知系统”中：</p>
+<p>假设我们准备读取一个 <code>socket</code>，但是它可能还没有准备好数据。如果数据准备好了，我们就可以读取它然后然后返回 <code>Poll::Ready(data)</code>，但是如果数据没有准备好，我们可以注册一个唤醒器到“事件通知系统”中：</p>
 <pre><code class="language-rust noplayground">struct SocketRead&lt;'a&gt; {
 	socket: &amp;'a Socket
 }

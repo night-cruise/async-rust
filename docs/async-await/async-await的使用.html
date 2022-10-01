@@ -194,17 +194,17 @@ async fn blocks() {
     let s = String::new(&quot;Hello World&quot;);
     let future_one = async {
         println!(&quot;{:?}&quot;, s);
-    }
+    };
     let future_two = async {
         println!(&quot;{:?}&quot;, s);
-    }
+    };
     
-    executor::join(future_one, future_two);
+    futures::future::join(future_one, future_two); // need run in cargo with futures crate
 }
 
 // s 被 move 进行 async 块中，因此只能在该 async 块内才能访问 
 fn move_block() -&gt; impl Future&lt;Output = ()&gt; {
-    let s = String::new(&quot;Hello World&quot;);
+    let s = String::from(&quot;Hello World&quot;);
     async move {
         println!(&quot;{:?}&quot;, s);
     }
