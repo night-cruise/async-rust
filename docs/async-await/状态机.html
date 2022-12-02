@@ -174,11 +174,12 @@ fn main() {
 <p>编译器会把生成器转化为下面的代码：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
 
+use std::mem;
 use std::pin::Pin;
 use std::ops::{Generator, GeneratorState};
 
 fn main() {
-    let mut gen = Gen::new();
+    let mut gen = MyGenerator::new();
 
     loop {
         match Pin::new(&amp;mut gen).resume(()) {
@@ -191,53 +192,43 @@ fn main() {
     }
 }
 
-enum Gen {
+enum MyGenerator {
     Enter,
-    State1(State1),
-    State2(State2),
+    State1(i32),
+    State2(i32),
     Exit
 }
 
-struct State1 {
-    _x: i32
-}
-
-struct State2 {
-    _x: i32
-}
-
-impl&lt;R&gt; Generator&lt;R&gt; for Gen {
+impl&lt;R&gt; Generator&lt;R&gt; for MyGenerator {
     type Yield = i32;
     type Return = ();
 
     fn resume(self: Pin&lt;&amp;mut Self&gt;, _arg: R) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt; {
         let mut_gen = self.get_mut();
-        match std::mem::replace(mut_gen, Gen::Exit) {
-            Gen::Enter =&gt; {
-                *mut_gen = Gen::State1(State1 { _x: 1 });
+        match mem::replace(mut_gen, MyGenerator::Exit) {
+            MyGenerator::Enter =&gt; {
+                *mut_gen = MyGenerator::State1(1);
                 GeneratorState::Yielded(1)
             }
-            Gen::State1(_) =&gt; {
-                *mut_gen = Gen::State2(State2 { _x: 2 });
+            MyGenerator::State1(_) =&gt; {
+                *mut_gen = MyGenerator::State2(2);
                 GeneratorState::Yielded(2)
             }
-            Gen::State2(_) =&gt; {
-                *mut_gen = Gen::Exit;
+            MyGenerator::State2(_) =&gt; {
+                *mut_gen = MyGenerator::Exit;
                 GeneratorState::Complete(())
             }
-            Gen::Exit =&gt; panic!(&quot;Generator has been completed.&quot;)
+            MyGenerator::Exit =&gt; panic!(&quot;Generator has been completed.&quot;)
         }
     }
 }
 
-impl Gen {
+impl MyGenerator {
     fn new() -&gt; Self {
         Self::Enter
     }
 }</code></pre></pre>
 <p>同时，由于每个 <code>async</code> 函数最终都会生成一个状态机，并且每个可执行文件都会捆绑一个异步运行时，这会导致异步的 Rust 代码在编译后产生更大的二进制体积，这也是 <code>async</code> Rust 的一个小缺点。</p>
-<blockquote>
-</blockquote>
 
                     </main>
 
@@ -268,22 +259,6 @@ impl Gen {
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

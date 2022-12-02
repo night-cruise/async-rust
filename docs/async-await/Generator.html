@@ -182,10 +182,8 @@ use std::ops::{Generator, GeneratorState};
 
 fn main() {
     let mut gen = || {
-        let mut i = 1;
-        while i &lt; 10 {
+        for i in 0..10 {
             yield i;
-            i += 1;
         }
         
         return ();
@@ -209,13 +207,13 @@ use std::ops::{Generator, GeneratorState};
 
 
 fn main() {
-    let mut gen = MyGenerator { i: 1, completed: false };
+    let mut gen = MyGenerator { counter: 1, completed: false };
     
     loop {
         match Pin::new(&amp;mut gen).resume(()) {
             GeneratorState::Yielded(y) =&gt; println!(&quot;Yielded: {}&quot;, y),
             GeneratorState::Complete(r) =&gt; {
-                println!(&quot;Complete: {:?}&quot;, r);
+                println!(&quot;Complete: {}&quot;, r);
                 break;
             }
         }
@@ -224,27 +222,27 @@ fn main() {
 
 
 struct MyGenerator {
-    i: i32,
+    counter: i32,
     completed: bool
 }
 
 
 impl&lt;R&gt; Generator&lt;R&gt; for MyGenerator {
     type Yield = i32;
-    type Return = ();
+    type Return = char;
     
     fn resume(self: Pin&lt;&amp;mut Self&gt;, _arg: R) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt; {
         if self.completed {
             panic!(&quot;MyGenerator has been completed.&quot;);
         }
         
-        let i = self.i;
-        if i &lt; 10 {
-            self.get_mut().i = i + 1;
-            GeneratorState::Yielded(i)
+        let counter = self.counter;
+        if counter &lt; 10 {
+            self.get_mut().counter = counter + 1;
+            GeneratorState::Yielded(counter)
         } else {
             self.get_mut().completed = true;
-            GeneratorState::Complete(())
+            GeneratorState::Complete('🎉')
         }
     }
 }</code></pre></pre>
@@ -257,7 +255,7 @@ use std::ops::{Generator, GeneratorState};
 
 
 fn main() {
-    let gen = MyGenerator { i: 1, completed: false };
+    let gen = MyGenerator { counter: 0, completed: false };
     
     for val in gen {
         println!(&quot;Got: {}&quot;, val);
@@ -267,7 +265,7 @@ fn main() {
 
 
 struct MyGenerator {
-    i: i32,
+    counter: i32,
     completed: bool
 }
 
@@ -281,10 +279,10 @@ impl&lt;R&gt; Generator&lt;R&gt; for MyGenerator {
             panic!(&quot;MyGenerator has been completed.&quot;);
         }
         
-        let i = self.i;
-        if i &lt; 10 {
-            self.get_mut().i = i + 1;
-            GeneratorState::Yielded(i)
+        let counter = self.counter;
+        if counter &lt; 10 {
+            self.get_mut().counter = counter + 1;
+            GeneratorState::Yielded(counter)
         } else {
             self.get_mut().completed = true;
             GeneratorState::Complete(())
@@ -436,22 +434,6 @@ async fn bar() -&gt; impl Future&lt;Output = i32&gt; {
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

@@ -59,10 +59,8 @@ use std::ops::{Generator, GeneratorState};
 
 fn main() {
     let mut gen = || {
-        let mut i = 1;
-        while i < 10 {
+        for i in 0..10 {
             yield i;
-            i += 1;
         }
         
         return ();
@@ -90,13 +88,13 @@ use std::ops::{Generator, GeneratorState};
 
 
 fn main() {
-    let mut gen = MyGenerator { i: 1, completed: false };
+    let mut gen = MyGenerator { counter: 1, completed: false };
     
     loop {
         match Pin::new(&mut gen).resume(()) {
             GeneratorState::Yielded(y) => println!("Yielded: {}", y),
             GeneratorState::Complete(r) => {
-                println!("Complete: {:?}", r);
+                println!("Complete: {}", r);
                 break;
             }
         }
@@ -105,27 +103,27 @@ fn main() {
 
 
 struct MyGenerator {
-    i: i32,
+    counter: i32,
     completed: bool
 }
 
 
 impl<R> Generator<R> for MyGenerator {
     type Yield = i32;
-    type Return = ();
+    type Return = char;
     
     fn resume(self: Pin<&mut Self>, _arg: R) -> GeneratorState<Self::Yield, Self::Return> {
         if self.completed {
             panic!("MyGenerator has been completed.");
         }
         
-        let i = self.i;
-        if i < 10 {
-            self.get_mut().i = i + 1;
-            GeneratorState::Yielded(i)
+        let counter = self.counter;
+        if counter < 10 {
+            self.get_mut().counter = counter + 1;
+            GeneratorState::Yielded(counter)
         } else {
             self.get_mut().completed = true;
-            GeneratorState::Complete(())
+            GeneratorState::Complete('🎉')
         }
     }
 }
@@ -142,7 +140,7 @@ use std::ops::{Generator, GeneratorState};
 
 
 fn main() {
-    let gen = MyGenerator { i: 1, completed: false };
+    let gen = MyGenerator { counter: 0, completed: false };
     
     for val in gen {
         println!("Got: {}", val);
@@ -152,7 +150,7 @@ fn main() {
 
 
 struct MyGenerator {
-    i: i32,
+    counter: i32,
     completed: bool
 }
 
@@ -166,10 +164,10 @@ impl<R> Generator<R> for MyGenerator {
             panic!("MyGenerator has been completed.");
         }
         
-        let i = self.i;
-        if i < 10 {
-            self.get_mut().i = i + 1;
-            GeneratorState::Yielded(i)
+        let counter = self.counter;
+        if counter < 10 {
+            self.get_mut().counter = counter + 1;
+            GeneratorState::Yielded(counter)
         } else {
             self.get_mut().completed = true;
             GeneratorState::Complete(())
