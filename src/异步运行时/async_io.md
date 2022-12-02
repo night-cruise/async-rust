@@ -4,7 +4,7 @@
 
 
 
-## Ipv4Addr 抽象
+## Ipv4Addr
 
 ```rust,noplayground
 pub struct Ipv4Addr(libc::in_addr);
@@ -26,7 +26,7 @@ impl Ipv4Addr {
 
 
 
-## TcpListener 抽象
+## TcpListener
 
 ```rust,noplayground
 pub struct TcpListener(RawFd);
@@ -117,7 +117,7 @@ impl<'a> Incoming<'a> {
 
 
 
-## TcpStream 抽象
+## TcpStream
 
 ```rust,noplayground
 pub struct TcpStream(RawFd);
@@ -156,7 +156,7 @@ impl Drop for TcpStream {
 
 
 
-## Leaf Future 抽象
+## Leaf Future
 
 ```rust,noplayground
 pub struct AcceptFuture<'a>(&'a TcpListener);

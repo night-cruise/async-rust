@@ -8,7 +8,6 @@
 
         <!-- Custom HTML head -->
         
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="A book which aims to introduce the theory and mechanism of async/await syntax and async runtime in the Rust.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -34,13 +33,13 @@
     </head>
     <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -56,7 +55,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -68,7 +67,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -99,7 +98,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -135,7 +134,7 @@
                 </div>
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -151,8 +150,7 @@
 <pre><code class="language-rust noplayground">pub trait Future {
     type Output;	// Future计算完成时产生的值的类型
     fn poll(self: Pin&lt;&amp;mut Self&gt;, cx: &amp;mut Context&lt;'_&gt;) -&gt; Poll&lt;Self::Output&gt;;
-}
-</code></pre>
+}</code></pre>
 <p><code>Future</code> 表示一个异步计算，或者说会在未来完成计算的操作。<code>Future</code> 的核心是 <code>poll</code> 方法，当调用 <code>poll</code> 方法时会尝试计算 <code>Future</code> 得到最终的值。如果值还没有准备好（例如等待某些事件发生），则此方法不会阻塞，而是会直接返回一个结果表示 <code>Future</code> 还没有计算完毕。</p>
 <blockquote>
 <p>注意：<code>Future trait</code> 中涉及到的 <code>Pin</code> 将会在后面的章节中介绍。</p>
@@ -186,8 +184,7 @@ impl&lt;'a&gt; Future for SocketRead&lt;'a&gt; {
 			}
 		}
 	}
-}
-</code></pre>
+}</code></pre>
 <p>代码中的 <code>REACTOR </code>就是前文中所提到过的“事件通知系统”。当 <code>socket</code> 中有数据可读时，<code>REACTOR </code>就会使用注册的 <code>Waker</code> 唤醒负责 <code>SocketRead </code>，然后调用 <code>poll</code> 方法再次计算该 <code>Future</code>。</p>
 <h2 id="leaf--non-leaf-future"><a class="header" href="#leaf--non-leaf-future">Leaf / Non-leaf Future</a></h2>
 <p>在前文中我们提到使用 <code>async</code> 关键字可以创建一个 <code>Future</code> 类型，而在上面的小栗子中我们通过实现 <code>Future trait</code> 的方式也创建了一个 <code>Future</code> 类型，那么这两个 <code>Future</code> 有什么区别呢？</p>
@@ -199,8 +196,7 @@ impl&lt;'a&gt; Future for SocketRead&lt;'a&gt; {
 
 impl&lt;'a&gt; Future for SocketRead&lt;'a&gt; {
 	/
-}
-</code></pre>
+}</code></pre>
 <p><code>Leaf Future</code> 中通常会涉及到对 IO 的操作，例如从一个 <code>socket</code> 中读取数据，并且对 IO 的操作是非阻塞式的。</p>
 <p>当调用异步运行时提供的异步读 <code>socket</code> 的方法时就会返回上述的 <code>Future</code>：</p>
 <pre><code class="language-rust noplayground">impl async_runtime {
@@ -209,8 +205,7 @@ impl&lt;'a&gt; Future for SocketRead&lt;'a&gt; {
 	}
 }
 
-let mut leaf_future: SocketRead = async_runtime.read_socket();
-</code></pre>
+let mut leaf_future: SocketRead = async_runtime.read_socket();</code></pre>
 <p>通常情况下，这些 <code>Leaf Future</code> 都是由异步运行时自己创建的，用户只需要使用 <code>async/await</code> 关键字即可。</p>
 <h3 id="non-leaf-future"><a class="header" href="#non-leaf-future">Non-leaf Future</a></h3>
 <p><code>Non-leaf Future</code> 是我们使用 <code>async</code> 关键字创建 <code>Future</code>，并且会由 <code>async runtime</code> 来调度运行。</p>
@@ -224,8 +219,7 @@ let mut leaf_future: SocketRead = async_runtime.read_socket();
 	
 	let data = async_runtime.read_socket().await;
 	println!(&quot;Receive data: {:?}&quot;, data);
-}
-</code></pre>
+}</code></pre>
 <p>在 <code>await</code> 一个 <code>Leaf Future</code> 时，如果返回的是 <code>Pending</code>，那么<code>Non-Leaf Future</code> 就会让出对当前线程的控制权，此时 <code>async runtime</code> 就能够调度执行其他的 <code>Non-Leaf Future</code> 。当 <code>Non-Leaf Future</code> 中的 IO 操作就绪时，<code>async runtime</code> 就会重新激活挂起的 <code>Future</code>，在<strong>上次离开的地方继续运行</strong>。</p>
 
                     </main>
@@ -257,21 +251,37 @@ let mut leaf_future: SocketRead = async_runtime.read_socket();
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 
-        <script type="text/javascript">
+        <script>
             window.playground_copyable = true;
         </script>
 
 
-        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
 
-        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
 

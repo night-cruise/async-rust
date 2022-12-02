@@ -8,7 +8,6 @@
 
         <!-- Custom HTML head -->
         
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="A book which aims to introduce the theory and mechanism of async/await syntax and async runtime in the Rust.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -34,13 +33,13 @@
     </head>
     <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -56,7 +55,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -68,7 +67,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -99,7 +98,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -135,7 +134,7 @@
                 </div>
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -160,8 +159,7 @@
 struct SelfReference&lt;'a&gt; {
 	a: String,
 	b: &amp;'a String
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>如果编译，将会发生报错：</p>
 <pre><code class="language-rust noplayground">error[E0382]: borrow of moved value: `s`
  --&gt; src/main.rs:5:12
@@ -172,8 +170,7 @@ struct SelfReference&lt;'a&gt; {
 4 |         a: s,
   |            - value moved here
 5 |         b: &amp;s
-  |            ^^ value borrowed here after move
-</code></pre>
+  |            ^^ value borrowed here after move</code></pre>
 <p>这是因为 <code>s</code> 已经发生了 <code>move</code>，因此 <code>b</code> 就不能借用已经 <code>move</code> 了的 <code>s</code>。</p>
 <p>为了创建自引用结构，我们需要使用裸指针：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">fn main() {
@@ -215,12 +212,10 @@ impl SelfReference {
             &amp;*self.b
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>编译运行，结果如下所示：</p>
 <pre><code class="language-rust noplayground">sr_1: { a: Hello, b: Hello }
-sr_2: { a: World, b: World }
-</code></pre>
+sr_2: { a: World, b: World }</code></pre>
 <p>接下来，让我们交换 <code>sr_1</code> 和 <code>sr_2</code> 的内存位置的数据，即 <code>sr_1</code> 和 <code>sr_2</code> 互相 <code>move</code> 给对方：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">fn main() {
     let mut sr_1 = SelfReference::new(&quot;Hello&quot;);
@@ -263,8 +258,7 @@ sr_2: { a: World, b: World }
 </span><span class="boring">           &amp;*self.b
 </span><span class="boring">       }
 </span><span class="boring">   }
-</span><span class="boring">}
-</span></code></pre></pre>
+</span><span class="boring">}</span></code></pre></pre>
 <p>编译运行，结果如下所示：</p>
 <pre><code class="language-rust noplayground">Before swap:
 sr_1: { a: Hello, b: Hello }
@@ -272,8 +266,7 @@ sr_2: { a: World, b: World }
 
 After swap:
 sr_1: { a: World, b: Hello }
-sr_2: { a: Hello, b: World }
-</code></pre>
+sr_2: { a: Hello, b: World }</code></pre>
 <p>可以看出，在交换 <code>sr_1</code> 和 <code>sr_2</code>  后，字段 <code>a</code> 的数据也发生了交换，但是字段 <code>b</code> 的数据没有改变，仍然指向之前的位置，如图所示：</p>
 <p><img src="../imgs/swap_problem.jpg" alt="swap problem" /></p>
 <p>这意味着，<code>sr</code>（<code>sr_1</code>、<code>sr_2</code>）将不再是自引用结构体，并保存了一个指向其他对象的裸指针。因此，<code>sr</code> 的字段 <code>b</code> 的生命周期将不再和其结构体本身相关联，我们将难以保证 <code>sr.b</code> 指针不会变成悬垂指针。</p>
@@ -304,15 +297,13 @@ impl&lt;P: DerefMut&lt;Target: Unpin&gt;&gt; DerefMut for Pin&lt;P&gt; {
     fn deref_mut(&amp;mut self) -&gt; &amp;mut P::Target {
         Pin::get_mut(Pin::as_mut(self))
     }
-}
-</code></pre>
+}</code></pre>
 <p><code>Pin</code> 实现了 <code>Deref</code> 和 <code>DerefMut</code> <code>trait</code>，因此 <code>Pin</code> 是一个智能指针。并且 <code>Pin</code> 的内部包裹了另一个指针 <code>P</code>，因此我们一般使用 <code>Pin&lt;P&lt;T&gt;&gt;</code> 的方式来表示一个 <code>Pin</code> 结构（<code>T</code> 是指针 <code>P</code> 指向的类型）。</p>
 <p>既然有 <code>Pin</code>，那么自然就有 <code>Unpin</code>，那么 <code>Unpin</code> 是什么呢？<code>Unpin</code> 是一个 <code>auto trait</code>，编译器会默认为所有的类型实现 <code>Unpin</code>，除非这些类型实现了 <code>!Unpin</code>。</p>
 <p>要想获取 <code>Pin&lt;P&lt;T&gt;&gt;</code> 中 <code>T</code> 的可变引用 <code>&amp;mut T</code>，可以使用 <code>Pin</code> 提供的 <code>get_mut</code> 方法，这也是 <code>Pin</code> 提供的 <code>api</code> 中<strong>唯一</strong>可以<strong>安全地</strong>获取 <code>&amp;mut T</code> 的方法，其函数签名如下所示：</p>
 <pre><code class="language-rust noplayground">pub fn get_mut(self) -&gt; &amp;'a mut T
 where
-    T: Unpin,
-</code></pre>
+    T: Unpin,</code></pre>
 <p>发现了吗？要想安全地拿到 <code>&amp;mut T</code>，<code>T</code> 就必须实现 <code>Unpin</code>。如果 <code>T</code> 实现了 <code>!Unpin</code>，那么就不可能安全地拿到 <code>T</code> 的可变引用，我们自然也就无法使用 <code>std::mem::swap(x: &amp;mut T, y: &amp;mut T)</code> 等类似的函数 <code>move</code> <code>T</code>，就不会发生前文的例子中出现的未定义行为。</p>
 <p>因此，<code>Pin&lt;P&lt;T&gt;&gt;</code> 利用 Rust 的类型系统保证：如果 <code>T</code> 实现了 <code>!Unpin</code>，那么就不可能在 Safe Rust 中获取 <code>T</code> 的可变引用。相反，如果 <code>T</code> 实现了 <code>Unpin</code>，那么 <code>Pin</code> 就仅仅是对 <code>P&lt;T&gt;</code> 的一层包装，我么可以随意地拿到 <code>&amp;mut T</code>。</p>
 <p>接下来，我们将会使用 <code>Pin</code> 解决上面的那个例子中出现的问题。</p>
@@ -370,8 +361,7 @@ impl SelfReference {
             &amp;*self.b
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>此时代码将不会通过编译：</p>
 <pre><code class="language-rust noplayground">error[E0277]: `SelfReference` cannot be unpinned
    --&gt; src/main.rs:18:25
@@ -389,8 +379,7 @@ error[E0277]: `SelfReference` cannot be unpinned
     |                                         ^^^^^^^ the trait `Unpin` is not implemented for `SelfReference`
     |
     = note: consider using `Box::pin`
-note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
-</code></pre>
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`</code></pre>
 <p>这说明当我们把 <code>&amp;mut SelfReference</code> <code>Pin</code> 到栈上之后，无法通过 <code>get_mut</code> 方法拿到 <code>&amp;mut SelfReference</code>，那么自然就无法使用 <code>swap</code> 函数，在编译阶段就保证了不会出现内存安全问题。</p>
 <p><code>Pin::new_unchecked</code> 是一个 <code>unsafe</code> 函数，这是因为<strong>需要使用者自己遵守约定</strong>只使用 <code>Pin</code> 提供的 <code>api</code> 来获取并使用可变引用。</p>
 <p>假如使用者提前 <code>drop</code> 掉 <code>Pin</code>，这样就可以直接获取 <code>T</code> 的可变引用，仍然会导致内存安全问题：</p>
@@ -449,8 +438,7 @@ fn main() {
 </span><span class="boring">           &amp;*self.b
 </span><span class="boring">       }
 </span><span class="boring">   }
-</span><span class="boring">}    
-</span></code></pre></pre>
+</span><span class="boring">}    </span></code></pre></pre>
 <p>编译运行，将会出现和之前的例子中一样的问题：</p>
 <pre><code class="language-rust noplayground">Before swap:
 sr_1: { a: Hello, b: Hello }
@@ -458,8 +446,7 @@ sr_2: { a: World, b: World }
 
 After swap:
 sr_1: { a: World, b: Hello }
-sr_2: { a: Hello, b: World }
-</code></pre>
+sr_2: { a: Hello, b: World }</code></pre>
 <h3 id="pin-to-heap"><a class="header" href="#pin-to-heap">Pin to heap</a></h3>
 <p><code>Pin</code> 到堆上是指把我们想要 <code>Pin</code> 住的值装箱到堆上面，使用<code>Box::pin</code> 函数即可把 <code>T</code> 包装成 <code>Pin&lt;Box&lt;T&gt;&gt;</code>：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(negative_impls)]
@@ -510,8 +497,7 @@ impl SelfReference {
             &amp;*self.b
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>此时代码将不会通过编译：</p>
 <pre><code class="language-rust noplayground">error[E0277]: `SelfReference` cannot be unpinned
    --&gt; src/main.rs:13:34
@@ -529,8 +515,7 @@ error[E0277]: `SelfReference` cannot be unpinned
     |                                                           ^^^^^^^ the trait `Unpin` is not implemented for `SelfReference`
     |
     = note: consider using `Box::pin`
-note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
-</code></pre>
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`</code></pre>
 <p><code>Pin</code> 到堆上的优点是不需要使用者编写 <code>unsafe</code> 函数来构造 <code>Pin</code>，也不需要使用者自己遵守约定只使用 <code>Pin</code> 提供的 <code>api</code> 来获取可变引用，因为 <code>Pin</code> 到堆上后，用户只能使用 <code>Pin&lt;Box&lt;T&gt;&gt;</code>；缺点是 <code>Pin</code> 到堆上会有额外的性能开销。</p>
 <h2 id="pin-and-async"><a class="header" href="#pin-and-async">Pin and async</a></h2>
 <p>在前文中我们给出了 <code>Future</code> 和 <code>Generator</code> 的定义：</p>
@@ -546,8 +531,7 @@ pub trait Generator&lt;R = ()&gt; {
         self: Pin&lt;&amp;mut Self&gt;, 
         arg: R
     ) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt;;
-}
-</code></pre>
+}</code></pre>
 <p>还有将 <code>Generator</code> 转化为 <code>Future</code> 的函数：</p>
 <pre><code class="language-rust noplayground">pub const fn from_generator&lt;T&gt;(gen: T) -&gt; impl Future&lt;Output = T::Return&gt;
     where T: Generator&lt;ResumeTy, Yield = ()&gt;
@@ -570,8 +554,7 @@ pub trait Generator&lt;R = ()&gt; {
     }
 
     GenFuture(gen)
-}
-</code></pre>
+}</code></pre>
 <p>可以看到要调用 <code>Future</code> 的 <code>Poll</code> 方法和 <code>Generator</code> 的 <code>resume</code> 方法必须使用 <code>Pin&lt;&amp;mut Self&gt;</code> 才行。并且在 <code>from_generator</code> 函数中为 <code>GenFuture</code> 实现了 <code>!Unpin</code>。</p>
 <p>经过前面的学习，我们知道为 <code>T</code> 实现了 <code>!Unpin</code> 后，就无法在 Safe Rust 中获取 <code>T</code> 的可变引用，而 Rust 会主动为 <code>Future</code> 实现 <code>!Unpin</code>，那么为什么 Rust 需要 <code>Pin</code> 住 <code>Future</code> 呢？</p>
 <p>假设我们编写了一个生成器：</p>
@@ -586,8 +569,7 @@ fn main(){
         
         println!(&quot;{}&quot;, borrowed_s);
     };
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>编译后将会发生报错：</p>
 <pre><code class="language-rust noplayground">error[E0626]: borrow may still be in use when generator yields
  --&gt; src/main.rs:6:26
@@ -597,7 +579,6 @@ fn main(){
 7 |         
 8 |         yield borrowed_s.len();
   |         ---------------------- possible yield occurs here
-
 </code></pre>
 <p>编译器提示我们生成器中存在跨 <code>yield</code> 借用，那么为什么编译器不允许跨 <code>yield</code> 借用呢？</p>
 <p>想要知道原因，我们还要继续深入底层，上述的生成器会被编译成一个状态机：</p>
@@ -668,13 +649,11 @@ impl Gen {
     fn new() -&gt; Self {
         Self::Enter
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>编译上述代码，结果似乎就是我们所期待的：</p>
 <pre><code class="language-rust noplayground">Yielded: 11
 Hello World
-Complete: ()
-</code></pre>
+Complete: ()</code></pre>
 <p>从上述的代码中可以看出，<strong>生成的状态机中存在自引用结构</strong>。因此如果生成器中存在跨 <code>yield</code> 点借用，那么就可能产生内存安全问题，编译器干脆就禁止存在跨 <code>yield</code> 点借用的生成器通过编译。</p>
 <p>例如，如果我们使用 <code>swap</code> 函数 <code>move</code> 生成器就可能发生异常：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
@@ -748,15 +727,13 @@ fn main() {
 </span><span class="boring">   fn new() -&gt; Self {
 </span><span class="boring">       Self::Enter
 </span><span class="boring">   }
-</span><span class="boring">}
-</span></code></pre></pre>
+</span><span class="boring">}</span></code></pre></pre>
 <p>编译运行将会发生段错误：</p>
 <pre><code class="language-rust noplayground">/playground/tools/entrypoint.sh: line 11:    12 Segmentation fault
 Yielded: 11
 Yielded: 11
 Hello World
-Complete: ()
-</code></pre>
+Complete: ()</code></pre>
 <p>为了防止 <code>move</code> 掉生成器，我们需要为 <code>Gen</code> 实现 <code>!Unpin</code>：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(negative_impls)]
 #![feature(generators, generator_trait)]
@@ -828,8 +805,7 @@ impl !Unpin for Gen {}
 </span><span class="boring">   fn new() -&gt; Self {
 </span><span class="boring">       Self::Enter
 </span><span class="boring">   }
-</span><span class="boring">}
-</span></code></pre></pre>
+</span><span class="boring">}</span></code></pre></pre>
 <p>编译修改后的代码将会直接报错：</p>
 <pre><code class="language-rust noplayground">error[E0277]: `Gen` cannot be unpinned
    --&gt; src/main.rs:23:41
@@ -847,8 +823,7 @@ error[E0277]: `Gen` cannot be unpinned
     |                                                                         ^^^^^^^ the trait `Unpin` is not implemented for `Gen`
     |
     = note: consider using `Box::pin`
-note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
-</code></pre>
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`</code></pre>
 <p>通过为生成器实现 <code>!Unpin</code>，我们有效的防止了可能会出现的内存安全问题。</p>
 <p>但是，我们无法为使用闭包编写的生成器实现 <code>!Unpin</code>，那么怎么让我们的初版代码编译通过呢？答案是使用 <code>static</code> 关键字标记生成器，这就相当于为我们的生成器实现了 <code>!Unpin</code>：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
@@ -877,13 +852,11 @@ fn main(){
             }
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>编译运行，一切正常：</p>
 <pre><code class="language-rust noplayground">Yielded: 11
 Hello World
-Complete: ()
-</code></pre>
+Complete: ()</code></pre>
 <h3 id="小总结"><a class="header" href="#小总结">小总结</a></h3>
 <p><code>async</code> 创建的 <code>Future</code> 在编译后会生成一个状态机，如果 <code>async</code> 代码中存在跨 <code>await</code> 借用，那么对应的底层生成器中也会存在跨 <code>yield</code> 点借用，最终生成的状态机中就会存在自引用结构，为了避免可能发生的内存安全问题，Rust 自动为 <code>Future</code> 实现了 <code>!Unpin</code>，并且只能使用 <code>Pin&lt;&amp;mut Self&gt;</code> 来调用 <code>Future</code> 的 <code>poll</code> 方法和 <code>Generator</code> 的 <code>resume</code> 方法，从而避免了使用者在 Safe Rust 中获取 <code>Future</code> 或 <code>Generator</code> 的可变引用，最终避免了使用者使用 <code>swap</code> 之类的函数 <code>move</code> 掉 <code>Future</code> 或 <code>Generator</code> 而造成的内存安全问题。 </p>
 <h2 id="pin-总结"><a class="header" href="#pin-总结">Pin 总结</a></h2>
@@ -944,21 +917,37 @@ Complete: ()
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 
-        <script type="text/javascript">
+        <script>
             window.playground_copyable = true;
         </script>
 
 
-        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
 
-        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
 

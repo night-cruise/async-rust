@@ -1,6 +1,6 @@
 # executor
 
-## Executor 抽象
+## Executor
 
 ```rust,noplayground
 pub struct Executor {
@@ -68,7 +68,7 @@ impl Executor {
 
 
 
-## Spawner 抽象
+## Spawner
 
 在初始状态下，`executor` 的执行队列中是空的，我们需要一种机制能够让用户手动地创建 `task` 并将 `task` 发送到 `executor` 的执行队列中，最后开启 `executor` 的执行。`Spawner` 抽象便提供了这种机制：
 

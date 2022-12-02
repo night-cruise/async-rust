@@ -15,7 +15,7 @@ macro_rules! syscall {
 }
 ```
 
-## Epoll 抽象
+## Epoll
 
 抽象出 `Epoll` 和 `EpollEventType` 类型：
 

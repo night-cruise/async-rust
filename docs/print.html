@@ -9,7 +9,6 @@
 
         <!-- Custom HTML head -->
         
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="A book which aims to introduce the theory and mechanism of async/await syntax and async runtime in the Rust.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -35,13 +34,13 @@
     </head>
     <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -57,7 +56,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -69,7 +68,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -100,7 +99,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -136,7 +135,7 @@
                 </div>
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -199,36 +198,7 @@
 <p>为了避免歧义，本书中的异步编程特指在 Rust 中使用 <code>async/await</code> 关键字进行编写异步代码。</p>
 <p>通过 <code>async</code> 关键字创建的异步函数或者异步块会返回一个实现了 <code>Future</code> trait 的类型，其本质上是一个协程对象。将 <code>async/await</code> 关键字和异步运行时结合使用就可以实现对多个协程对象的调度执行，从而达到并发执行的效果。</p>
 <p>在 Rust 中主要应用的是 进程—线程—协程 异步模型，如下所示：</p>
-<pre><code>    +------------------------------------------------------------------+
-    |                                                                  |
-    |    +--------------------------------------------------------+    |
-    |    |                                                        |    |
-    |    |   +-------------------------------------------------+  |    |
-    |    |   | +------------+ +----------+ +--------------+    |  |    |
-    |    |   | | coroutine  | | coroutine| |  coroutine   |    |  |    |
-    |    |   + +------------+ +----------+ +--------------+    |  |    |
-    |    |   |                                                 |  |    |
-    |    |   +-------------------------------------------------+  |    |
-    |    |                                                        |    |
-    |    | thread                                                 |    |
-    |    +--------------------------------------------------------+    |
-    |                                                                  |
-    |                                                                  |
-    |    +--------------------------------------------------------+    |
-    |    |                                                        |    |
-    |    |   +-------------------------------------------------+  |    |
-    |    |   | +------------+ +----------+ +--------------+    |  |    |
-    |    |   | | coroutine  | | coroutine| |  coroutine   |    |  |    |
-    |    |   + +------------+ +----------+ +--------------+    |  |    |
-    |    |   |                                                 |  |    |
-    |    |   +-------------------------------------------------+  |    |
-    |    |                                                        |    |
-    |    | thread                                                 |    |
-    |    +--------------------------------------------------------+    |
-    |                                                                  |
-    | process                                                          |
-    +------------------------------------------------------------------+
-</code></pre>
+<p><img src="imgs/async-model.png" alt="" /></p>
 <p>下层是进程，进程是持有资源的最小单位；中层是线程，线程不持有资源，是<code>CPU</code>调度的最小单位；上层是协程，协程既不持有资源、也不在意<code>CPU</code>的调度，它仅仅关注的是“协作式的、自然的流程切换”。</p>
 <p>异步运行时就负责调度执行上述的协程对象。例如在一个协程在等待 IO 时，这个协程会主动出让自己的执行权给异步运行时，这时异步运行时可以调度运行其他的协程，从而最大化地利用CPU时间片。在 IO 密集型的应用中，异步编程将能够极大地提高执行效率。</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="asyncawait"><a class="header" href="#asyncawait">async/await</a></h1>
@@ -248,7 +218,6 @@ fn bar() -&gt; impl Future&lt;Output = u8&gt; {
         x + 5
     }
 }
-
 </code></pre>
 <p><code>async fn</code> 和 <code>async {}</code> 返回的 <code>Future</code> 是惰性的：在真正开始运行之前它什么也不会做。运行一个 <code>Future</code> 的最普遍的方式是 <code>await</code> 这个 <code>Future</code>： <code>Future.await</code>。</p>
 <p>当 <code>await</code> 一个 <code>Future</code> 时，会暂停当前函数的运行，直到完成对 <code>Future</code> 的运行。如果这个 <code>Future</code> 被阻塞住了（例如等待网络IO），它会让出当前线程的控制权。当 <code>Future</code> 中的阻塞操作就绪时（例如等待的网络IO返回了响应），<code>executor</code> 会通过 <code>poll</code> 会恢复 <code>Future</code> 的运行。</p>
@@ -259,8 +228,7 @@ fn bar() -&gt; impl Future&lt;Output = u8&gt; {
 // 这与上面的函数完全等价
 fn foo_expanded&lt;'a&gt;(x: &amp;'a u8) -&gt; impl Future&lt;Output = u8&gt; + 'a {
     async move { *x }
-}
-</code></pre>
+}</code></pre>
 <p>这意味着，<code>async fn</code> 返回的 <code>Future</code> 必须在非静态生命周期参数仍然有效时 <code>.await</code>。在大多数情况下，我们在调用 <code>async</code> 函数后会立马 <code>.await</code>（例如 <code>foo(&amp;x).await</code>），因此 <code>async lifetime</code> 不会对执行产生什么影响。但是，如果我们存储这种 <code>Future</code> 或者发送给其他的 <code>task</code> 或者 <code>thread</code>，就可能会造成问题。</p>
 <p>把带有引用参数的 <code>async fn</code> 转化为静态 <code>Future</code> 的解决方法是：把参数和对 <code>async fn</code> 的调用封装到 <code>async</code> 块中：</p>
 <pre><code class="language-rust noplayground">fn bad() -&gt; impl Future&lt;Output = u8&gt; {
@@ -273,8 +241,7 @@ fn good() -&gt; impl Future&lt;Output = u8&gt; {
         let x = 5;
         borrow_x(&amp;x).await
     }
-}
-</code></pre>
+}</code></pre>
 <p>通过把参数移动到 <code>async</code> 块中，我们把它的生命周期扩展到了匹配调用 <code>good</code> 返回的 <code>Future</code> 的生命周期。</p>
 <h2 id="async-move"><a class="header" href="#async-move">async move</a></h2>
 <p><code>async</code> 块和闭包允许像普通闭包那样使用 <code>move</code> 关键字。一个 <code>async move</code> 块会获取变量的所有权，但是这会导致无法与其他的代码共享这些变量：</p>
@@ -297,16 +264,14 @@ fn move_block() -&gt; impl Future&lt;Output = ()&gt; {
     async move {
         println!(&quot;{:?}&quot;, s);
     }
-}
-</code></pre>
+}</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="future-trait"><a class="header" href="#future-trait">Future trait</a></h1>
 <p>在前文中，我们提到使用 <code>async</code> 标记的 <code>fn</code>、<code>block</code>、<code>closure</code> 都会返回一个 <code>Future</code>，本节将会详细地介绍 <code>Future</code> 的概念。</p>
 <p>在标准库中，<code>Future</code> 的定义如下所示：</p>
 <pre><code class="language-rust noplayground">pub trait Future {
     type Output;	// Future计算完成时产生的值的类型
     fn poll(self: Pin&lt;&amp;mut Self&gt;, cx: &amp;mut Context&lt;'_&gt;) -&gt; Poll&lt;Self::Output&gt;;
-}
-</code></pre>
+}</code></pre>
 <p><code>Future</code> 表示一个异步计算，或者说会在未来完成计算的操作。<code>Future</code> 的核心是 <code>poll</code> 方法，当调用 <code>poll</code> 方法时会尝试计算 <code>Future</code> 得到最终的值。如果值还没有准备好（例如等待某些事件发生），则此方法不会阻塞，而是会直接返回一个结果表示 <code>Future</code> 还没有计算完毕。</p>
 <blockquote>
 <p>注意：<code>Future trait</code> 中涉及到的 <code>Pin</code> 将会在后面的章节中介绍。</p>
@@ -340,8 +305,7 @@ impl&lt;'a&gt; Future for SocketRead&lt;'a&gt; {
 			}
 		}
 	}
-}
-</code></pre>
+}</code></pre>
 <p>代码中的 <code>REACTOR </code>就是前文中所提到过的“事件通知系统”。当 <code>socket</code> 中有数据可读时，<code>REACTOR </code>就会使用注册的 <code>Waker</code> 唤醒负责 <code>SocketRead </code>，然后调用 <code>poll</code> 方法再次计算该 <code>Future</code>。</p>
 <h2 id="leaf--non-leaf-future"><a class="header" href="#leaf--non-leaf-future">Leaf / Non-leaf Future</a></h2>
 <p>在前文中我们提到使用 <code>async</code> 关键字可以创建一个 <code>Future</code> 类型，而在上面的小栗子中我们通过实现 <code>Future trait</code> 的方式也创建了一个 <code>Future</code> 类型，那么这两个 <code>Future</code> 有什么区别呢？</p>
@@ -353,8 +317,7 @@ impl&lt;'a&gt; Future for SocketRead&lt;'a&gt; {
 
 impl&lt;'a&gt; Future for SocketRead&lt;'a&gt; {
 	/
-}
-</code></pre>
+}</code></pre>
 <p><code>Leaf Future</code> 中通常会涉及到对 IO 的操作，例如从一个 <code>socket</code> 中读取数据，并且对 IO 的操作是非阻塞式的。</p>
 <p>当调用异步运行时提供的异步读 <code>socket</code> 的方法时就会返回上述的 <code>Future</code>：</p>
 <pre><code class="language-rust noplayground">impl async_runtime {
@@ -363,8 +326,7 @@ impl&lt;'a&gt; Future for SocketRead&lt;'a&gt; {
 	}
 }
 
-let mut leaf_future: SocketRead = async_runtime.read_socket();
-</code></pre>
+let mut leaf_future: SocketRead = async_runtime.read_socket();</code></pre>
 <p>通常情况下，这些 <code>Leaf Future</code> 都是由异步运行时自己创建的，用户只需要使用 <code>async/await</code> 关键字即可。</p>
 <h3 id="non-leaf-future"><a class="header" href="#non-leaf-future">Non-leaf Future</a></h3>
 <p><code>Non-leaf Future</code> 是我们使用 <code>async</code> 关键字创建 <code>Future</code>，并且会由 <code>async runtime</code> 来调度运行。</p>
@@ -378,8 +340,7 @@ let mut leaf_future: SocketRead = async_runtime.read_socket();
 	
 	let data = async_runtime.read_socket().await;
 	println!(&quot;Receive data: {:?}&quot;, data);
-}
-</code></pre>
+}</code></pre>
 <p>在 <code>await</code> 一个 <code>Leaf Future</code> 时，如果返回的是 <code>Pending</code>，那么<code>Non-Leaf Future</code> 就会让出对当前线程的控制权，此时 <code>async runtime</code> 就能够调度执行其他的 <code>Non-Leaf Future</code> 。当 <code>Non-Leaf Future</code> 中的 IO 操作就绪时，<code>async runtime</code> 就会重新激活挂起的 <code>Future</code>，在<strong>上次离开的地方继续运行</strong>。</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="generator"><a class="header" href="#generator">Generator</a></h1>
 <p><code>Future</code> 的底层依赖于生成器，因此在本节中我们将会介绍生成器的概念，以及生成器是如何转化为 <code>Future</code> 的。</p>
@@ -397,8 +358,7 @@ let mut leaf_future: SocketRead = async_runtime.read_socket();
 pub enum GeneratorState&lt;Y, R&gt; {
     Yielded(Y),
     Complete(R),
-}
-</code></pre>
+}</code></pre>
 <p><code>Generator</code> 通常也被称为协程，主要目的是为 <code>async/await</code> 语法提供构建块，但是未来也可能会扩展到为 <code>Iterator</code> 和其他类型提供符合人体工程学的定义。</p>
 <p><code>Generator</code> 的关联类型 <code>Yield</code> 对应于使用<code>yield</code> 表达式产出的值的类型。</p>
 <p><code>Generator</code> 的关联类型 <code>Return</code> 对应于使用 <code>return</code> 语句或者生成器中的最后一个表达式返回的值的类型。</p>
@@ -438,8 +398,7 @@ fn main() {
             }
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>通过为自定义类型实现 <code>Generator trait</code> 来创建生成器：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
 
@@ -486,8 +445,7 @@ impl&lt;R&gt; Generator&lt;R&gt; for MyGenerator {
             GeneratorState::Complete(())
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>把生成器当作迭代器使用：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
 
@@ -541,8 +499,7 @@ impl Iterator for MyGenerator {
             GeneratorState::Complete(_) =&gt; None
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <h2 id="from-generator-to-future"><a class="header" href="#from-generator-to-future">From Generator to Future</a></h2>
 <p>Rust 的 <code>core</code> 库中的 <code>future</code> 模块定义了将生成器转化为 <code>Future</code> 的函数（为了便于阅读去掉了注释部分）：</p>
 <pre><code class="language-rust noplayground">pub const fn from_generator&lt;T&gt;(gen: T) -&gt; impl Future&lt;Output = T::Return&gt;
@@ -566,8 +523,7 @@ impl Iterator for MyGenerator {
     }
 
     GenFuture(gen)
-}
-</code></pre>
+}</code></pre>
 <p>从源码中可以看出，实际上我们使用 <code>async</code> 创建的 <code>Future</code> 是一个实现了 <code>Future trait</code> 的结构体 <code>GenFuture</code>，这个结构体的内部是一个生成器。</p>
 <p>在我们调用 <code>Future</code> 的 <code>poll</code> 方法时，实际上就是在调用底层的生成器的 <code>resume</code> 方法，并且生成器返回的 <code>GeneratorState::Yielded/Complete(val)</code> 会被分别转化为 <code>poll</code> 的返回类型：<code>Poll::Pending/Ready(val)</code>。</p>
 <h2 id="小栗子-1"><a class="header" href="#小栗子-1">小栗子</a></h2>
@@ -584,8 +540,7 @@ async fn foo() -&gt; i32 {
 async fn bar() -&gt; i32 {
     foo().await
 }
-<span class="boring">}
-</span></code></pre></pre>
+<span class="boring">}</span></code></pre></pre>
 <p><a href="https://rustc-dev-guide.rust-lang.org/hir.html">HIR</a> 是 Rust 代码编译的中间产物，可以帮助我们直到代码在脱糖后是什么样子。可以使用 Rust <code>Playground</code> 的 <code>HIR</code> 功能编译上述代码，结果如下：</p>
 <pre><code class="language-rust noplayground">#[inline(never)]
 async fn foo()
@@ -617,8 +572,7 @@ async fn bar()
                                 };
                         _t
                     }
-            })
-</code></pre>
+            })</code></pre>
 <p>原生的 <code>HIR</code> 代码难以阅读，我们将其转化为下面的 Rust 伪代码：</p>
 <pre><code class="language-rust noplayground">#[inline(never)]
 async fn foo() -&gt; impl Future&lt;Output = i32&gt; {
@@ -646,8 +600,7 @@ async fn bar() -&gt; impl Future&lt;Output = i32&gt; {
         };
         _t
     })
-}
-</code></pre>
+}</code></pre>
 <p>可以看到 <code>async</code> 函数体内的代码被转化成了一个生成器，然后再调用 <code>from_generator</code> 函数传入生成器创建一个 <code>Future</code> ，这与我们上面介绍的 <code>from_generator</code> 函数的功能一致。</p>
 <p><code>await</code> 部分则被转化为了一个无限循环，在循环的内部会调用 <code>await</code> 的 <code>Future</code> 的 <code>poll</code> 方法，如果结果是 <code>Poll::Ready</code>，则终止循环并返回 <code>result</code>，继续执行剩余的代码；如果结果是 <code>Poll::Pending</code>，则会使用 <code>yield</code> 挂起生成器，将控制权转移给调用方。当调用方激活这个挂起的生成器时，生成器就会恢复运行，执行循环体中的代码。</p>
 <p>因此，只有当 <code>await</code> 的 <code>Future</code> 执行完毕时，才会继续往下执行 <code>async</code> 块中的代码，这样就确保了能够以同步的方式编写异步代码，让我们能拥有良好的开发体验。</p>
@@ -677,8 +630,7 @@ fn main() {
             }
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>编译器会把生成器转化为下面的代码：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
 
@@ -742,8 +694,7 @@ impl Gen {
     fn new() -&gt; Self {
         Self::Enter
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>同时，由于每个 <code>async</code> 函数最终都会生成一个状态机，并且每个可执行文件都会捆绑一个异步运行时，这会导致异步的 Rust 代码在编译后产生更大的二进制体积，这也是 <code>async</code> Rust 的一个小缺点。</p>
 <blockquote>
 </blockquote>
@@ -762,8 +713,7 @@ impl Gen {
 struct SelfReference&lt;'a&gt; {
 	a: String,
 	b: &amp;'a String
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>如果编译，将会发生报错：</p>
 <pre><code class="language-rust noplayground">error[E0382]: borrow of moved value: `s`
  --&gt; src/main.rs:5:12
@@ -774,8 +724,7 @@ struct SelfReference&lt;'a&gt; {
 4 |         a: s,
   |            - value moved here
 5 |         b: &amp;s
-  |            ^^ value borrowed here after move
-</code></pre>
+  |            ^^ value borrowed here after move</code></pre>
 <p>这是因为 <code>s</code> 已经发生了 <code>move</code>，因此 <code>b</code> 就不能借用已经 <code>move</code> 了的 <code>s</code>。</p>
 <p>为了创建自引用结构，我们需要使用裸指针：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">fn main() {
@@ -817,12 +766,10 @@ impl SelfReference {
             &amp;*self.b
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>编译运行，结果如下所示：</p>
 <pre><code class="language-rust noplayground">sr_1: { a: Hello, b: Hello }
-sr_2: { a: World, b: World }
-</code></pre>
+sr_2: { a: World, b: World }</code></pre>
 <p>接下来，让我们交换 <code>sr_1</code> 和 <code>sr_2</code> 的内存位置的数据，即 <code>sr_1</code> 和 <code>sr_2</code> 互相 <code>move</code> 给对方：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">fn main() {
     let mut sr_1 = SelfReference::new(&quot;Hello&quot;);
@@ -865,8 +812,7 @@ sr_2: { a: World, b: World }
 </span><span class="boring">           &amp;*self.b
 </span><span class="boring">       }
 </span><span class="boring">   }
-</span><span class="boring">}
-</span></code></pre></pre>
+</span><span class="boring">}</span></code></pre></pre>
 <p>编译运行，结果如下所示：</p>
 <pre><code class="language-rust noplayground">Before swap:
 sr_1: { a: Hello, b: Hello }
@@ -874,8 +820,7 @@ sr_2: { a: World, b: World }
 
 After swap:
 sr_1: { a: World, b: Hello }
-sr_2: { a: Hello, b: World }
-</code></pre>
+sr_2: { a: Hello, b: World }</code></pre>
 <p>可以看出，在交换 <code>sr_1</code> 和 <code>sr_2</code>  后，字段 <code>a</code> 的数据也发生了交换，但是字段 <code>b</code> 的数据没有改变，仍然指向之前的位置，如图所示：</p>
 <p><img src="async-await/../imgs/swap_problem.jpg" alt="swap problem" /></p>
 <p>这意味着，<code>sr</code>（<code>sr_1</code>、<code>sr_2</code>）将不再是自引用结构体，并保存了一个指向其他对象的裸指针。因此，<code>sr</code> 的字段 <code>b</code> 的生命周期将不再和其结构体本身相关联，我们将难以保证 <code>sr.b</code> 指针不会变成悬垂指针。</p>
@@ -906,15 +851,13 @@ impl&lt;P: DerefMut&lt;Target: Unpin&gt;&gt; DerefMut for Pin&lt;P&gt; {
     fn deref_mut(&amp;mut self) -&gt; &amp;mut P::Target {
         Pin::get_mut(Pin::as_mut(self))
     }
-}
-</code></pre>
+}</code></pre>
 <p><code>Pin</code> 实现了 <code>Deref</code> 和 <code>DerefMut</code> <code>trait</code>，因此 <code>Pin</code> 是一个智能指针。并且 <code>Pin</code> 的内部包裹了另一个指针 <code>P</code>，因此我们一般使用 <code>Pin&lt;P&lt;T&gt;&gt;</code> 的方式来表示一个 <code>Pin</code> 结构（<code>T</code> 是指针 <code>P</code> 指向的类型）。</p>
 <p>既然有 <code>Pin</code>，那么自然就有 <code>Unpin</code>，那么 <code>Unpin</code> 是什么呢？<code>Unpin</code> 是一个 <code>auto trait</code>，编译器会默认为所有的类型实现 <code>Unpin</code>，除非这些类型实现了 <code>!Unpin</code>。</p>
 <p>要想获取 <code>Pin&lt;P&lt;T&gt;&gt;</code> 中 <code>T</code> 的可变引用 <code>&amp;mut T</code>，可以使用 <code>Pin</code> 提供的 <code>get_mut</code> 方法，这也是 <code>Pin</code> 提供的 <code>api</code> 中<strong>唯一</strong>可以<strong>安全地</strong>获取 <code>&amp;mut T</code> 的方法，其函数签名如下所示：</p>
 <pre><code class="language-rust noplayground">pub fn get_mut(self) -&gt; &amp;'a mut T
 where
-    T: Unpin,
-</code></pre>
+    T: Unpin,</code></pre>
 <p>发现了吗？要想安全地拿到 <code>&amp;mut T</code>，<code>T</code> 就必须实现 <code>Unpin</code>。如果 <code>T</code> 实现了 <code>!Unpin</code>，那么就不可能安全地拿到 <code>T</code> 的可变引用，我们自然也就无法使用 <code>std::mem::swap(x: &amp;mut T, y: &amp;mut T)</code> 等类似的函数 <code>move</code> <code>T</code>，就不会发生前文的例子中出现的未定义行为。</p>
 <p>因此，<code>Pin&lt;P&lt;T&gt;&gt;</code> 利用 Rust 的类型系统保证：如果 <code>T</code> 实现了 <code>!Unpin</code>，那么就不可能在 Safe Rust 中获取 <code>T</code> 的可变引用。相反，如果 <code>T</code> 实现了 <code>Unpin</code>，那么 <code>Pin</code> 就仅仅是对 <code>P&lt;T&gt;</code> 的一层包装，我么可以随意地拿到 <code>&amp;mut T</code>。</p>
 <p>接下来，我们将会使用 <code>Pin</code> 解决上面的那个例子中出现的问题。</p>
@@ -972,8 +915,7 @@ impl SelfReference {
             &amp;*self.b
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>此时代码将不会通过编译：</p>
 <pre><code class="language-rust noplayground">error[E0277]: `SelfReference` cannot be unpinned
    --&gt; src/main.rs:18:25
@@ -991,8 +933,7 @@ error[E0277]: `SelfReference` cannot be unpinned
     |                                         ^^^^^^^ the trait `Unpin` is not implemented for `SelfReference`
     |
     = note: consider using `Box::pin`
-note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
-</code></pre>
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`</code></pre>
 <p>这说明当我们把 <code>&amp;mut SelfReference</code> <code>Pin</code> 到栈上之后，无法通过 <code>get_mut</code> 方法拿到 <code>&amp;mut SelfReference</code>，那么自然就无法使用 <code>swap</code> 函数，在编译阶段就保证了不会出现内存安全问题。</p>
 <p><code>Pin::new_unchecked</code> 是一个 <code>unsafe</code> 函数，这是因为<strong>需要使用者自己遵守约定</strong>只使用 <code>Pin</code> 提供的 <code>api</code> 来获取并使用可变引用。</p>
 <p>假如使用者提前 <code>drop</code> 掉 <code>Pin</code>，这样就可以直接获取 <code>T</code> 的可变引用，仍然会导致内存安全问题：</p>
@@ -1051,8 +992,7 @@ fn main() {
 </span><span class="boring">           &amp;*self.b
 </span><span class="boring">       }
 </span><span class="boring">   }
-</span><span class="boring">}    
-</span></code></pre></pre>
+</span><span class="boring">}    </span></code></pre></pre>
 <p>编译运行，将会出现和之前的例子中一样的问题：</p>
 <pre><code class="language-rust noplayground">Before swap:
 sr_1: { a: Hello, b: Hello }
@@ -1060,8 +1000,7 @@ sr_2: { a: World, b: World }
 
 After swap:
 sr_1: { a: World, b: Hello }
-sr_2: { a: Hello, b: World }
-</code></pre>
+sr_2: { a: Hello, b: World }</code></pre>
 <h3 id="pin-to-heap"><a class="header" href="#pin-to-heap">Pin to heap</a></h3>
 <p><code>Pin</code> 到堆上是指把我们想要 <code>Pin</code> 住的值装箱到堆上面，使用<code>Box::pin</code> 函数即可把 <code>T</code> 包装成 <code>Pin&lt;Box&lt;T&gt;&gt;</code>：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(negative_impls)]
@@ -1112,8 +1051,7 @@ impl SelfReference {
             &amp;*self.b
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>此时代码将不会通过编译：</p>
 <pre><code class="language-rust noplayground">error[E0277]: `SelfReference` cannot be unpinned
    --&gt; src/main.rs:13:34
@@ -1131,8 +1069,7 @@ error[E0277]: `SelfReference` cannot be unpinned
     |                                                           ^^^^^^^ the trait `Unpin` is not implemented for `SelfReference`
     |
     = note: consider using `Box::pin`
-note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
-</code></pre>
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`</code></pre>
 <p><code>Pin</code> 到堆上的优点是不需要使用者编写 <code>unsafe</code> 函数来构造 <code>Pin</code>，也不需要使用者自己遵守约定只使用 <code>Pin</code> 提供的 <code>api</code> 来获取可变引用，因为 <code>Pin</code> 到堆上后，用户只能使用 <code>Pin&lt;Box&lt;T&gt;&gt;</code>；缺点是 <code>Pin</code> 到堆上会有额外的性能开销。</p>
 <h2 id="pin-and-async"><a class="header" href="#pin-and-async">Pin and async</a></h2>
 <p>在前文中我们给出了 <code>Future</code> 和 <code>Generator</code> 的定义：</p>
@@ -1148,8 +1085,7 @@ pub trait Generator&lt;R = ()&gt; {
         self: Pin&lt;&amp;mut Self&gt;, 
         arg: R
     ) -&gt; GeneratorState&lt;Self::Yield, Self::Return&gt;;
-}
-</code></pre>
+}</code></pre>
 <p>还有将 <code>Generator</code> 转化为 <code>Future</code> 的函数：</p>
 <pre><code class="language-rust noplayground">pub const fn from_generator&lt;T&gt;(gen: T) -&gt; impl Future&lt;Output = T::Return&gt;
     where T: Generator&lt;ResumeTy, Yield = ()&gt;
@@ -1172,8 +1108,7 @@ pub trait Generator&lt;R = ()&gt; {
     }
 
     GenFuture(gen)
-}
-</code></pre>
+}</code></pre>
 <p>可以看到要调用 <code>Future</code> 的 <code>Poll</code> 方法和 <code>Generator</code> 的 <code>resume</code> 方法必须使用 <code>Pin&lt;&amp;mut Self&gt;</code> 才行。并且在 <code>from_generator</code> 函数中为 <code>GenFuture</code> 实现了 <code>!Unpin</code>。</p>
 <p>经过前面的学习，我们知道为 <code>T</code> 实现了 <code>!Unpin</code> 后，就无法在 Safe Rust 中获取 <code>T</code> 的可变引用，而 Rust 会主动为 <code>Future</code> 实现 <code>!Unpin</code>，那么为什么 Rust 需要 <code>Pin</code> 住 <code>Future</code> 呢？</p>
 <p>假设我们编写了一个生成器：</p>
@@ -1188,8 +1123,7 @@ fn main(){
         
         println!(&quot;{}&quot;, borrowed_s);
     };
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>编译后将会发生报错：</p>
 <pre><code class="language-rust noplayground">error[E0626]: borrow may still be in use when generator yields
  --&gt; src/main.rs:6:26
@@ -1199,7 +1133,6 @@ fn main(){
 7 |         
 8 |         yield borrowed_s.len();
   |         ---------------------- possible yield occurs here
-
 </code></pre>
 <p>编译器提示我们生成器中存在跨 <code>yield</code> 借用，那么为什么编译器不允许跨 <code>yield</code> 借用呢？</p>
 <p>想要知道原因，我们还要继续深入底层，上述的生成器会被编译成一个状态机：</p>
@@ -1270,13 +1203,11 @@ impl Gen {
     fn new() -&gt; Self {
         Self::Enter
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>编译上述代码，结果似乎就是我们所期待的：</p>
 <pre><code class="language-rust noplayground">Yielded: 11
 Hello World
-Complete: ()
-</code></pre>
+Complete: ()</code></pre>
 <p>从上述的代码中可以看出，<strong>生成的状态机中存在自引用结构</strong>。因此如果生成器中存在跨 <code>yield</code> 点借用，那么就可能产生内存安全问题，编译器干脆就禁止存在跨 <code>yield</code> 点借用的生成器通过编译。</p>
 <p>例如，如果我们使用 <code>swap</code> 函数 <code>move</code> 生成器就可能发生异常：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
@@ -1350,15 +1281,13 @@ fn main() {
 </span><span class="boring">   fn new() -&gt; Self {
 </span><span class="boring">       Self::Enter
 </span><span class="boring">   }
-</span><span class="boring">}
-</span></code></pre></pre>
+</span><span class="boring">}</span></code></pre></pre>
 <p>编译运行将会发生段错误：</p>
 <pre><code class="language-rust noplayground">/playground/tools/entrypoint.sh: line 11:    12 Segmentation fault
 Yielded: 11
 Yielded: 11
 Hello World
-Complete: ()
-</code></pre>
+Complete: ()</code></pre>
 <p>为了防止 <code>move</code> 掉生成器，我们需要为 <code>Gen</code> 实现 <code>!Unpin</code>：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(negative_impls)]
 #![feature(generators, generator_trait)]
@@ -1430,8 +1359,7 @@ impl !Unpin for Gen {}
 </span><span class="boring">   fn new() -&gt; Self {
 </span><span class="boring">       Self::Enter
 </span><span class="boring">   }
-</span><span class="boring">}
-</span></code></pre></pre>
+</span><span class="boring">}</span></code></pre></pre>
 <p>编译修改后的代码将会直接报错：</p>
 <pre><code class="language-rust noplayground">error[E0277]: `Gen` cannot be unpinned
    --&gt; src/main.rs:23:41
@@ -1449,8 +1377,7 @@ error[E0277]: `Gen` cannot be unpinned
     |                                                                         ^^^^^^^ the trait `Unpin` is not implemented for `Gen`
     |
     = note: consider using `Box::pin`
-note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`
-</code></pre>
+note: required by a bound in `Pin::&lt;&amp;'a mut T&gt;::get_mut`</code></pre>
 <p>通过为生成器实现 <code>!Unpin</code>，我们有效的防止了可能会出现的内存安全问题。</p>
 <p>但是，我们无法为使用闭包编写的生成器实现 <code>!Unpin</code>，那么怎么让我们的初版代码编译通过呢？答案是使用 <code>static</code> 关键字标记生成器，这就相当于为我们的生成器实现了 <code>!Unpin</code>：</p>
 <pre><pre class="playground"><code class="language-rust edition2021">#![feature(generators, generator_trait)]
@@ -1479,13 +1406,11 @@ fn main(){
             }
         }
     }
-}
-</code></pre></pre>
+}</code></pre></pre>
 <p>编译运行，一切正常：</p>
 <pre><code class="language-rust noplayground">Yielded: 11
 Hello World
-Complete: ()
-</code></pre>
+Complete: ()</code></pre>
 <h3 id="小总结"><a class="header" href="#小总结">小总结</a></h3>
 <p><code>async</code> 创建的 <code>Future</code> 在编译后会生成一个状态机，如果 <code>async</code> 代码中存在跨 <code>await</code> 借用，那么对应的底层生成器中也会存在跨 <code>yield</code> 点借用，最终生成的状态机中就会存在自引用结构，为了避免可能发生的内存安全问题，Rust 自动为 <code>Future</code> 实现了 <code>!Unpin</code>，并且只能使用 <code>Pin&lt;&amp;mut Self&gt;</code> 来调用 <code>Future</code> 的 <code>poll</code> 方法和 <code>Generator</code> 的 <code>resume</code> 方法，从而避免了使用者在 Safe Rust 中获取 <code>Future</code> 或 <code>Generator</code> 的可变引用，最终避免了使用者使用 <code>swap</code> 之类的函数 <code>move</code> 掉 <code>Future</code> 或 <code>Generator</code> 而造成的内存安全问题。 </p>
 <h2 id="pin-总结"><a class="header" href="#pin-总结">Pin 总结</a></h2>
@@ -1568,24 +1493,7 @@ Complete: ()
 <li>异步 IO 操作导致发起请求的进程被阻塞。</li>
 </ul>
 <p>根据 <code>PISIX</code> 的定义，可以把 IO 模型分为以下两类：</p>
-<pre><code>                                 +-+-+-+-+-+ 阻 塞 I/O (BIO)
-                                 |
-                                 +-+-+-+-+-+ 非 阻 塞 I/O (NIO)
-                                 |
-              +----------+ 同 步 I/O
-              |                  |
-              |                  +-+-+-+-+-+ I/O 多 路 复 用
-              |                  |
-              |                  +-+-+-+-+-+ 信 号 驱 动 I/O
-I/O 模 型  +---+
-              |
-              |
-              |                  +-+-+-+-+-+ Linux (AIO)
-              |                  |         (io_uring)
-              +----------+ 异 步 I/O
-                                 |
-                                 +-+-+-+-+-+ windows (IOCP)
-</code></pre>
+<p><img src="IO%E6%A8%A1%E5%9E%8B/../imgs/IO-Summary.png" alt="" /></p>
 <p>最后，各个 IO 模型的比较如下所示：</p>
 <p><img src="IO%E6%A8%A1%E5%9E%8B/../imgs/Comparison-IO-Model.png" alt="Comparison IO Model" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="epoll"><a class="header" href="#epoll">Epoll</a></h1>
@@ -1594,29 +1502,7 @@ I/O 模 型  +---+
 <div style="break-before: page; page-break-before: always;"></div><h1 id="epoll-介绍"><a class="header" href="#epoll-介绍">Epoll 介绍</a></h1>
 <h2 id="epoll-工作流程"><a class="header" href="#epoll-工作流程">Epoll 工作流程</a></h2>
 <p><code>Epoll</code> 的大致工作流程如下所示：</p>
-<pre><code>                    +------------------------------+       +-------------------------+
-                    | epoll_ctl                    |       | epoll_wait              |
-                    |                              |       |                         |
-                    |                              |       |         +-----+         | 
-                    |                +---+         |       |         |     |         |
-                    |                |   |         |       |         |     |         |
-                    |             +--+---+--+      |       |         +--+--+         | 
-                    |             |         |      |       |            |            |
-                    |           +-+-+     +-+-+    |       |            |            |
-epoll_create ----&gt;  |           |   |     |   |    |       |         +--+--+         | 
-                    |           +-+-+     +-+-+    + ----&gt; +         |     |         | 
-                    |             |                | event |         |     |         | 
-                    |          +--+--+             |       |         +--+--+         | 
-                    |          |     |             |       |            |            |
-                    |        +-+-+ +-+-+           |       |            |            |
-                    |        |   | |   |           |       |         +--+--+         | 
-                    |        +---+ +---+           |       |         |     |         | 
-                    |                              |       |         |     |         | 
-                    |                              |       |         +-----+         | 
-                    |           red-black tree     |       |    double linked-list   | 
-                    +------------------------------+       +-------------------------+
-
-</code></pre>
+<p><img src="Epoll/../imgs/epoll.png" alt="" /></p>
 <blockquote>
 <ol>
 <li><code>int epoll_create(int size)</code></li>
@@ -1702,16 +1588,14 @@ macro_rules! syscall {
             Ok(res)
         }
     }};
-}
-</code></pre>
+}</code></pre>
 <p>例如，现在我们可以这样调用 <code>epoll_wait</code>：</p>
 <pre><code class="language-rust noplayground">syscall!(epoll_wait(
             epoll_fd,
             events.as_mut_ptr() as *mut libc::epoll_event,
             1024,
             1000
-))
-</code></pre>
+))</code></pre>
 <p>宏展开后的代码如下所示：</p>
 <pre><code class="language-rust noplayground">{
     let res = unsafe {
@@ -1726,15 +1610,13 @@ macro_rules! syscall {
         Err(std::io::Error::last_os_error())
     } else {
         Ok(res)
-}
-</code></pre>
+}</code></pre>
 <h2 id="epoll-模块"><a class="header" href="#epoll-模块">epoll 模块</a></h2>
 <p>接下来，我们将会利用 <code>epoll</code> 提供的 <code>api</code> 来编写 IO 事件的注册、修改等功能。本模块需要导入的项：</p>
 <pre><code class="language-rust noplayground">use std::io;
 use std::os::unix::io::RawFd;
 
-use crate::syscall;
-</code></pre>
+use crate::syscall;</code></pre>
 <h3 id="创建-epoll-实例"><a class="header" href="#创建-epoll-实例">创建 epoll 实例</a></h3>
 <pre><code class="language-rust noplayground">/// 包装epoll_create，创建一个epoll实例
 pub fn epoll_create() -&gt; io::Result&lt;RawFd&gt; {
@@ -1750,8 +1632,7 @@ pub fn epoll_create() -&gt; io::Result&lt;RawFd&gt; {
     }
 
     Ok(fd)
-}
-</code></pre>
+}</code></pre>
 <h3 id="注册文件描述并监听事件"><a class="header" href="#注册文件描述并监听事件">注册文件描述并监听事件</a></h3>
 <pre><code class="language-rust noplayground">/// 包装 epoll_ctl，注册文件描述符和事件
 pub fn add_interest(epoll_fd: RawFd, fd: RawFd, mut event: libc::epoll_event) -&gt; io::Result&lt;()&gt; {
@@ -1762,8 +1643,7 @@ pub fn add_interest(epoll_fd: RawFd, fd: RawFd, mut event: libc::epoll_event) -&
     syscall!(epoll_ctl(epoll_fd, libc::EPOLL_CTL_ADD, fd, &amp;mut event))?;
 
     Ok(())
-}
-</code></pre>
+}</code></pre>
 <h3 id="修改注册的文件描述符"><a class="header" href="#修改注册的文件描述符">修改注册的文件描述符</a></h3>
 <pre><code class="language-rust noplayground">/// 包装 epoll_ctl，修改文件描述符
 pub fn modify_interest(epoll_fd: RawFd, fd: RawFd, mut event: libc::epoll_event) -&gt; io::Result&lt;()&gt; {
@@ -1774,8 +1654,7 @@ pub fn modify_interest(epoll_fd: RawFd, fd: RawFd, mut event: libc::epoll_event)
     syscall!(epoll_ctl(epoll_fd, libc::EPOLL_CTL_MOD, fd, &amp;mut event))?;
 
     Ok(())
-}
-</code></pre>
+}</code></pre>
 <h3 id="删除注册的文件描述符"><a class="header" href="#删除注册的文件描述符">删除注册的文件描述符</a></h3>
 <pre><code class="language-rust noplayground">/// 包装 epoll_ctl，删除文件描述符
 pub fn remove_interest(epoll_fd: RawFd, fd: RawFd) -&gt; io::Result&lt;()&gt; {
@@ -1790,14 +1669,12 @@ pub fn remove_interest(epoll_fd: RawFd, fd: RawFd) -&gt; io::Result&lt;()&gt; {
     ))?;
 
     Ok(())
-}
-</code></pre>
+}</code></pre>
 <h3 id="关闭文件描述符"><a class="header" href="#关闭文件描述符">关闭文件描述符</a></h3>
 <pre><code class="language-rust noplayground">/// 关闭文件描述符 fd
 pub fn close(fd: RawFd) {
     let _ = syscall!(close(fd));
-}
-</code></pre>
+}</code></pre>
 <h3 id="创建一个读事件"><a class="header" href="#创建一个读事件">创建一个读事件</a></h3>
 <pre><code class="language-rust noplayground">const READ_FLAGS: i32 = libc::EPOLLONESHOT | libc::EPOLLIN;
 
@@ -1808,8 +1685,7 @@ pub fn listener_read_event(key: u64) -&gt; libc::epoll_event {
         events: READ_FLAGS as u32,
         u64: key,
     }
-}
-</code></pre>
+}</code></pre>
 <h3 id="创建一个写事件"><a class="header" href="#创建一个写事件">创建一个写事件</a></h3>
 <pre><code class="language-rust noplayground">const WRITE_FLAGS: i32 = libc::EPOLLONESHOT | libc::EPOLLOUT;
 
@@ -1820,8 +1696,7 @@ pub fn listener_write_event(key: u64) -&gt; libc::epoll_event {
         events: WRITE_FLAGS as u32,
         u64: key,
     }
-}
-</code></pre>
+}</code></pre>
 <h2 id="http-模块"><a class="header" href="#http-模块">http 模块</a></h2>
 <p>在 <code>http</code> 模块中，我们将会编写处理 <code>HTTP</code> 请求相关的函数，需要导入的项：</p>
 <pre><code class="language-rust noplayground">use std::io;
@@ -1831,8 +1706,7 @@ use std::os::unix::io::{AsRawFd, RawFd};
 
 use crate::epoll::{
     close, listener_read_event, listener_write_event, modify_interest, remove_interest,
-};
-</code></pre>
+};</code></pre>
 <h3 id="请求上下文"><a class="header" href="#请求上下文">请求上下文</a></h3>
 <p>将与客户端建立的连接抽象成请求上下文：</p>
 <pre><code class="language-rust noplayground">/// 请求上下文，用于处理 HTTP 请求
@@ -1844,8 +1718,7 @@ pub struct RequestContext {
     pub content_length: usize,
     /// 收到的 HTTP 请求的数据写入的缓冲区
     pub buf: Vec&lt;u8&gt;,
-}
-</code></pre>
+}</code></pre>
 <p>接下来编写的函数，都是为 <code>RequestContext</code> 实现的方法。</p>
 <h3 id="创建请求上下文"><a class="header" href="#创建请求上下文">创建请求上下文</a></h3>
 <pre><code class="language-rust noplayground">pub fn new(stream: TcpStream) -&gt; Self {
@@ -1854,8 +1727,7 @@ pub struct RequestContext {
         buf: Vec::new(),
         content_length: 0,
     }
-}
-</code></pre>
+}</code></pre>
 <h3 id="从-stream-流中读取数据"><a class="header" href="#从-stream-流中读取数据">从 stream 流中读取数据</a></h3>
 <pre><code class="language-rust noplayground">pub fn read_cb(&amp;mut self, key: u64, epoll_fd: RawFd) -&gt; io::Result&lt;()&gt; {
     let mut buf = [0u8; 4096];
@@ -1891,8 +1763,7 @@ pub struct RequestContext {
     }
 
     Ok(())
-}
-</code></pre>
+}</code></pre>
 <h3 id="解析-http-请求"><a class="header" href="#解析-http-请求">解析 HTTP 请求</a></h3>
 <pre><code class="language-rust noplayground">/// 解析并且设置读取到的 HTTP 请求的 content-length 字段的值
 pub fn parse_and_set_content_length(&amp;mut self, data: &amp;str) {
@@ -1910,8 +1781,7 @@ pub fn parse_and_set_content_length(&amp;mut self, data: &amp;str) {
             }
         }
     }
-}
-</code></pre>
+}</code></pre>
 <h3 id="写入返回数据到-stream-流中"><a class="header" href="#写入返回数据到-stream-流中">写入返回数据到 stream 流中</a></h3>
 <p>为了简单起见，我们直接返回一段固定的 <code>HTTP</code> 文本。</p>
 <pre><code class="language-rust noplayground">// 返回的响应为固定的 HTTP 文本
@@ -1940,8 +1810,7 @@ pub fn write_cb(&amp;mut self, key: u64, epoll_fd: RawFd) -&gt; io::Result&lt;()
     close(fd);
 
     Ok(())
-}
-</code></pre>
+}</code></pre>
 <h2 id="main-模块"><a class="header" href="#main-模块">main 模块</a></h2>
 <p>接下来，我们将会编写 <code>server</code> 的入口函数，主要的逻辑为：注册文件描述符  =&gt;  调用 <code>epoll_wait</code> 获取就绪的事件  =&gt;  根据不同的事件进行处理。</p>
 <pre><code class="language-rust noplayground">use std::collections::HashMap;
@@ -2067,8 +1936,7 @@ fn main() -&gt; io::Result&lt;()&gt; {
             }
         }
     }
-}
-</code></pre>
+}</code></pre>
 <p><code>HTTP</code> 协议是无状态的，我们在完整处理一次请求后就删除对应的请求上下文，当客户端再次发起请求时会建立新的连接，创建新的请求上下文。</p>
 <p>至此，<code>epoll server</code> 编写完毕，源代码的仓库地址：<a href="https://github.com/night-cruise/rust-epoll-example">rust epoll example</a>。</p>
 <h2 id="运行-server"><a class="header" href="#运行-server">运行 server</a></h2>
@@ -2172,9 +2040,8 @@ answered from request 195
             Ok(res)
         }
     }};
-}
-</code></pre>
-<h2 id="epoll-抽象"><a class="header" href="#epoll-抽象">Epoll 抽象</a></h2>
+}</code></pre>
+<h2 id="epoll-2"><a class="header" href="#epoll-2">Epoll</a></h2>
 <p>抽象出 <code>Epoll</code> 和 <code>EpollEventType</code> 类型：</p>
 <pre><code class="language-rust noplayground">pub(crate) struct Epoll {
     fd: RawFd,
@@ -2184,8 +2051,7 @@ pub(crate) enum EpollEventType {
     // Only event types used in this example
     In,
     Out,
-}
-</code></pre>
+}</code></pre>
 <p><code>RawFd</code> 表示原始文件描述符。</p>
 <h2 id="方法实现"><a class="header" href="#方法实现">方法实现</a></h2>
 <h3 id="new"><a class="header" href="#new">new</a></h3>
@@ -2193,8 +2059,7 @@ pub(crate) enum EpollEventType {
 <pre><code class="language-rust noplayground">pub(crate) fn new() -&gt; io::Result&lt;Self&gt; {
     let fd = syscall!(epoll_create1(libc::EPOLL_CLOEXEC))?;
     Ok(Epoll { fd })
-}
-</code></pre>
+}</code></pre>
 <h3 id="添加事件修改事件"><a class="header" href="#添加事件修改事件">添加事件/修改事件</a></h3>
 <pre><code class="language-rust noplayground">fn run_ctl(&amp;self, epoll_ctl: libc::c_int, fd: RawFd, op: EpollEventType) -&gt; io::Result&lt;()&gt; {
     let mut event: libc::epoll_event = unsafe { mem::zeroed() };
@@ -2217,8 +2082,7 @@ pub(crate) fn add_event(&amp;self, fd: RawFd, op: EpollEventType) -&gt; io::Resu
 #[allow(dead_code)]
 pub(crate) fn mod_event(&amp;self, fd: RawFd, op: EpollEventType) -&gt; io::Result&lt;()&gt; {
     self.run_ctl(libc::EPOLL_CTL_MOD, fd, op)
-}
-</code></pre>
+}</code></pre>
 <p><code>add_event</code> 和 <code>mod_event</code> 都是通过调用<code>run_ctl</code> 方法实现的。在 <code>run_ctl</code> 方法中根据 <code>op</code> 类型设置要注册/修改的事件类型，然后调用 <code>epoll_ctl</code> 方法来注册/修改事件。</p>
 <h3 id="删除事件"><a class="header" href="#删除事件">删除事件</a></h3>
 <pre><code class="language-rust noplayground">pub(crate) fn del_event(&amp;self, fd: RawFd) -&gt; io::Result&lt;()&gt; {
@@ -2230,8 +2094,7 @@ pub(crate) fn mod_event(&amp;self, fd: RawFd, op: EpollEventType) -&gt; io::Resu
     ))?;
 
     Ok(())
-}
-</code></pre>
+}</code></pre>
 <p>删除在 <code>Epoll</code> 实例中注册描述符 <code>fd</code>。</p>
 <h3 id="等待就绪事件"><a class="header" href="#等待就绪事件">等待就绪事件</a></h3>
 <pre><code class="language-rust noplayground">pub(crate) fn wait(&amp;self, events: &amp;mut [libc::epoll_event]) -&gt; io::Result&lt;usize&gt; {
@@ -2243,8 +2106,7 @@ pub(crate) fn mod_event(&amp;self, fd: RawFd, op: EpollEventType) -&gt; io::Resu
     ))?;
 
     Ok(nfd as usize)
-}
-</code></pre>
+}</code></pre>
 <p>调用 <code>epoll_wait</code> 函数获取所有就绪的文件描述符，并将就绪的描述符存放到 <code>events</code> 中，最后返回就绪的描述符数量。</p>
 <h2 id="关闭epoll"><a class="header" href="#关闭epoll">关闭Epoll</a></h2>
 <p>为 <code>Epoll</code> 实现 <code>Drop trait</code>，在清理 <code>Epoll</code> 时关闭 <code>Epoll</code> 的文件描述符：</p>
@@ -2252,15 +2114,13 @@ pub(crate) fn mod_event(&amp;self, fd: RawFd, op: EpollEventType) -&gt; io::Resu
     fn drop(&amp;mut self) {
         syscall!(close(self.fd)).ok();
     }
-}
-</code></pre>
+}</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="reactor"><a class="header" href="#reactor">reactor</a></h1>
-<h2 id="reactor-抽象"><a class="header" href="#reactor-抽象">Reactor 抽象</a></h2>
+<h2 id="reactor-1"><a class="header" href="#reactor-1">Reactor</a></h2>
 <pre><code class="language-rust noplayground">pub(crate) struct Reactor {
     pub epoll: Epoll,
     pub wakers: Mutex&lt;BTreeMap&lt;RawFd, Waker&gt;&gt;,
-}
-</code></pre>
+}</code></pre>
 <p>字段 <code>epoll</code> 存储创建的 <code>Epoll</code> 实例，<code>wakers</code> 存储等待的IO事件的文件描述符和对应的 <code>waker</code>。</p>
 <p>我们稍后将会创建 <code>Epoll</code> 的静态变量，为了内部可变性，就把 <code>BTreeMap&lt;RawFd, Waker&gt;</code> 包在 <code>Mutex</code> 中。</p>
 <h2 id="添加事件"><a class="header" href="#添加事件">添加事件</a></h2>
@@ -2271,8 +2131,7 @@ pub(crate) fn mod_event(&amp;self, fd: RawFd, op: EpollEventType) -&gt; io::Resu
         self.wakers.lock().unwrap().insert(fd, waker);
         Ok(())
     }
-}
-</code></pre>
+}</code></pre>
 <p>在 <code>Reactor</code> 的添加事件的方法中，首先调用 <code>epoll</code> 的 <code>add_event</code> 方法注册文件描述符和监听的事件，然后把描述符和对应的 <code>waker</code> 存储在 <code>BTreeMap&lt;RawFd, Waker&gt;</code> 中。</p>
 <h2 id="reactor-循环"><a class="header" href="#reactor-循环">reactor 循环</a></h2>
 <pre><code class="language-rust noplayground">fn reactor_main_loop() -&gt; io::Result&lt;()&gt; {
@@ -2296,8 +2155,7 @@ pub(crate) fn mod_event(&amp;self, fd: RawFd, op: EpollEventType) -&gt; io::Resu
             }
         }
     }
-}
-</code></pre>
+}</code></pre>
 <p>在 <code>reactor_main_loop</code> 函数中，我们使用一个 <code>loop</code> 循环，在循环中调用 <code>epoll</code> 的 <code>wait</code> 方法获取所有就绪的 IO 事件的文件描述符，如果没有事件就绪，<code>wait</code> 方法就会阻塞 <code>reactor</code> 线程，避免 CPU 空转。</p>
 <p>然后遍历就绪的描述符，从 <code>wakers</code> 中获取描述符对应的 <code>waker</code>，之后调用 <code>epoll</code> 的 <code>delete_event</code> 方法删除描述符，表示这个事件已经处理完毕。</p>
 <p>最后，调用 <code>waker</code> 的 <code>wake</code> 方法，把因为等待IO事件而挂起的 <code>task</code> 发送到 <code>executor</code> 的执行队列中。</p>
@@ -2314,13 +2172,12 @@ pub(crate) fn mod_event(&amp;self, fd: RawFd, op: EpollEventType) -&gt; io::Resu
             wakers: Mutex::new(BTreeMap::new())
         }
     };
-}
-</code></pre>
+}</code></pre>
 <p><code>Executor</code> 在主线程运行，负责调度执行 <code>task</code>，而 <code>reactor_main_loop</code> 内部使用一个无线循环不断地获取就绪的 <code>fd</code>，并唤醒挂起的 <code>task</code>。为了避免 <code>reactor_main_loop</code> 阻塞 <code>Executor</code>，我们就开一个线程去执行 <code>reactor_main_loop</code>。</p>
 <p>之所以把 <code>REACTOR</code> 创建成全局静态变量，是为了在其他的模块中方便地调用 <code>REACTOR</code> 的方法。</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="async_io"><a class="header" href="#async_io">async_io</a></h1>
 <p>在 <code>async_io</code> 模块中，我们将会创建 <code>Leaf Future</code>，异步化网络IO的监听和读写操作。</p>
-<h2 id="ipv4addr-抽象"><a class="header" href="#ipv4addr-抽象">Ipv4Addr 抽象</a></h2>
+<h2 id="ipv4addr"><a class="header" href="#ipv4addr">Ipv4Addr</a></h2>
 <pre><code class="language-rust noplayground">pub struct Ipv4Addr(libc::in_addr);
 
 impl Ipv4Addr {
@@ -2333,10 +2190,9 @@ impl Ipv4Addr {
             .to_be(),
         })
     }
-}
-</code></pre>
+}</code></pre>
 <p><code>Ipv4Addr</code> 就是 <code>IPv4</code> 地址，<code>new</code> 方法负责创建一个 <code>Ipv4Addr</code> 类型。</p>
-<h2 id="tcplistener-抽象"><a class="header" href="#tcplistener-抽象">TcpListener 抽象</a></h2>
+<h2 id="tcplistener"><a class="header" href="#tcplistener">TcpListener</a></h2>
 <pre><code class="language-rust noplayground">pub struct TcpListener(RawFd);
 
 impl TcpListener {
@@ -2410,14 +2266,13 @@ impl&lt;'a&gt; Incoming&lt;'a&gt; {
     pub fn next(&amp;self) -&gt; AcceptFuture&lt;'a&gt; {
         AcceptFuture(self.0)
     }
-}
-</code></pre>
+}</code></pre>
 <p><code>bind</code> 方法负责绑定传入的的 <code>IpV4</code> 地址和端口号，创建一个 <code>TcpListener</code> 实例，需要注意的是要把 <code>TcpListener</code> 设置为非阻塞：<code>listener.nonblocking()</code>，这样在调用 <code>accept</code> 方法接收客户端连接时才不会阻塞。</p>
 <p><code>accept</code> 方法负责接收到来的客户端连接，然后创建 <code>TcpStream</code>，如果没有连接到来就返回一个 <code>io error</code>。</p>
 <p><code>nonblocking</code> 方法调用 <code>libc::fcntl</code> 函数把 <code>TcpListener</code> 设置为非阻塞。</p>
 <p><code>incoming</code> 方法把 <code>TcpListener</code> 的引用包在 <code>Incoming</code> 中，然后返回一个 <code>Incoming</code> 的实例。</p>
 <p><code>Incoming</code> 表示 <code>TcpListener</code> 接收连接的流式处理，每当我们想要接收一个新的连接时，就调用 <code>next</code> 方法返回一个 <code>AcceptFuture</code>（后面会讲这个）。</p>
-<h2 id="tcpstream-抽象"><a class="header" href="#tcpstream-抽象">TcpStream 抽象</a></h2>
+<h2 id="tcpstream"><a class="header" href="#tcpstream">TcpStream</a></h2>
 <pre><code class="language-rust noplayground">pub struct TcpStream(RawFd);
 
 impl TcpStream {
@@ -2445,11 +2300,10 @@ impl Drop for TcpStream {
         info!(&quot;(TcpStream)  close : {}&quot;, self.0);
         syscall!(close(self.0)).ok();
     }
-}
-</code></pre>
+}</code></pre>
 <p><code>nonblocking</code> 方法调用 <code>libc::fcntl</code> 函数把 <code>TcpStream</code> 设置为非阻塞。</p>
 <p><code>read/write</code> 方法分别返回 <code>RreadFture/WriteFuture</code>，和上面的 <code>AcceptFuture</code> 一样，我们将会在下面讲解这些 <code>Future</code> 的定义和作用。</p>
-<h2 id="leaf-future-抽象"><a class="header" href="#leaf-future-抽象">Leaf Future 抽象</a></h2>
+<h2 id="leaf-future-1"><a class="header" href="#leaf-future-1">Leaf Future</a></h2>
 <pre><code class="language-rust noplayground">pub struct AcceptFuture&lt;'a&gt;(&amp;'a TcpListener);
 pub struct ReadFuture&lt;'a&gt;(&amp;'a TcpStream, &amp;'a mut [u8]);
 pub struct WriteFuture&lt;'a&gt;(&amp;'a TcpStream, &amp;'a [u8]);
@@ -2510,8 +2364,7 @@ impl&lt;'a&gt; Future for WriteFuture&lt;'a&gt; {
             Err(e) =&gt; Poll::Ready(Err(e)),
         }
     }
-}
-</code></pre>
+}</code></pre>
 <p>在同步的处理方式中，监听 <code>TcpListener</code> 和读写 <code>TcpStream</code> 是阻塞式的，即会阻塞线程直到相应的 IO 事件发生；</p>
 <p>而在异步的处理方式中，监听 <code>TcpListener</code> 和读写 <code>TcpStream</code>  不会阻塞掉线程，而是会返回一个对应的 <code>Leaf Future</code>：</p>
 <ul>
@@ -2556,8 +2409,7 @@ pub(crate) struct Task {
     id: TaskId,
     future: Mutex&lt;Pin&lt;Box&lt;dyn Future&lt;Output = ()&gt; + 'static + Send&gt;&gt;&gt;,
     task_sender: Sender&lt;Arc&lt;Task&gt;&gt;,
-}
-</code></pre>
+}</code></pre>
 <p><code>Task</code> 中有三个字段：</p>
 <ul>
 <li>
@@ -2594,8 +2446,7 @@ pub(crate) struct Task {
             .as_mut()
             .poll(context)
     }
-}
-</code></pre>
+}</code></pre>
 <p><code>new</code> 方法中传入参数 <code>future</code> 和 <code>task_sender</code> 后创建一个 <code>Task</code> 实例：</p>
 <ul>
 <li>参数 <code>Future</code> 要求满足 <code>'static</code> 生命周期是因为 <code>task</code> 的存在时间可能是任意长的，因此需要 <code>Future</code> 具有静态生命周期。</li>
@@ -2620,24 +2471,21 @@ pub(crate) struct Task {
             .send(self.clone())
             .expect(&quot;send task failed&quot;);
     }
-}
-</code></pre>
+}</code></pre>
 <p><code>Wake</code> 中的 <code>wake/wake_by_ref</code> 方法实现就是具体的唤醒 <code>task</code> 的机制，在这个实现中，我们把想要唤醒的 <code>task</code> 通过 <code>task_sender</code> 发送到 <code>executor</code> 的执行队列中，这样 <code>executor</code> 就可以执行这个 <code>task</code> 了，这也是在 <code>Task</code> 定义中，需要 <code>task_sender</code> 字段的原因。</p>
 <p>此外，<code>wake/wake_by_ref</code> 方法中都需要 <code>Arc&lt;Task&gt;</code>，这是 <code>task_sender</code> 的 item 类型为 <code>Arc&lt;Task&gt;</code> 的原因之一。</p>
 <h2 id="构造-waker"><a class="header" href="#构造-waker">构造 Waker</a></h2>
 <p>对于实现了 <code>Wake trait</code> 的 <code>Task</code>，可以使用  <code>std::task::Waker</code> 的 <code>from</code> 方法构造一个 <code>Waker</code>：</p>
 <pre><code class="language-rust noplayground">impl&lt;W: Wake + Send + Sync + 'static&gt; From&lt;Arc&lt;W&gt;&gt; for Waker {
     fn from(waker: Arc&lt;W&gt;) -&gt; Waker {}
-}
-</code></pre>
+}</code></pre>
 <p>通过前面的分析，我们知道 <code>Task</code> 已经同时满足 <code>Wake + Send + Sync + 'static</code>，因此可以安全地使用 <code>from</code> 方法构造一个 <code>Waker</code>。</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="executor"><a class="header" href="#executor">executor</a></h1>
-<h2 id="executor-抽象"><a class="header" href="#executor-抽象">Executor 抽象</a></h2>
+<h2 id="executor-1"><a class="header" href="#executor-1">Executor</a></h2>
 <pre><code class="language-rust noplayground">pub struct Executor {
     task_queue: Receiver&lt;Arc&lt;Task&gt;&gt;,
     waker_cache: BTreeMap&lt;TaskId, Waker&gt;,
-}
-</code></pre>
+}</code></pre>
 <p><code>task_queue</code> 是一个 <code>channel</code> 的接收端，当 <code>spawn</code> 或者 <code>wake</code> 一个 <code>task</code> 时，就会发送 <code>Arc&lt;Task&gt;</code> 到 <code>task_queue</code> 中。</p>
 <p><code>waker_cache</code> 使用 <code>BTreeMap</code> 缓存可能会重复使用的 <code>Waker</code>，这是为了减小构造 <code>Waker</code> 的开销。</p>
 <blockquote>
@@ -2672,8 +2520,7 @@ pub(crate) struct Task {
     pub fn run(&amp;mut self) {
         self.run_ready_task();
     }
-}
-</code></pre>
+}</code></pre>
 <p><code>new</code> 方法接收 <code>Receiver&lt;Arc&lt;Task&gt;&gt;</code> 参数，然后创建一个执行器实例。</p>
 <p><code>run_ready_task</code> 方法中：</p>
 <ul>
@@ -2691,13 +2538,12 @@ pub(crate) struct Task {
 </ul>
 </li>
 </ul>
-<h2 id="spawner-抽象"><a class="header" href="#spawner-抽象">Spawner 抽象</a></h2>
+<h2 id="spawner"><a class="header" href="#spawner">Spawner</a></h2>
 <p>在初始状态下，<code>executor</code> 的执行队列中是空的，我们需要一种机制能够让用户手动地创建 <code>task</code> 并将 <code>task</code> 发送到 <code>executor</code> 的执行队列中，最后开启 <code>executor</code> 的执行。<code>Spawner</code> 抽象便提供了这种机制：</p>
 <pre><code class="language-rust noplayground">#[derive(Clone)]
 pub struct Spawner {
     task_sender: Sender&lt;Arc&lt;Task&gt;&gt;,
-}
-</code></pre>
+}</code></pre>
 <p><code>Spawner</code> 中的 <code>task_sender</code> 和 <code>Task</code> 的 <code>task_sender</code> 一样，都是为了把 <code>task</code> 发送到 <code>executor</code> 的执行队列中。</p>
 <h3 id="方法实现-3"><a class="header" href="#方法实现-3">方法实现</a></h3>
 <pre><code class="language-rust noplayground">impl Spawner {
@@ -2711,8 +2557,7 @@ pub struct Spawner {
             .send(Arc::new(task))
             .expect(&quot;send task failed&quot;);
     }
-}
-</code></pre>
+}</code></pre>
 <p><code>new</code> 方法接收<code>Sender&lt;Arc&lt;Task&gt;&gt;</code> 参数，然后创建一个 <code>Spawner</code> 实例。</p>
 <p><code>spawn</code> 方法中，使用传入的  <code>future</code>  参数创建一个 <code>Task</code> 实例，然后把这个 <code>task</code> 发送到 <code>executor</code> 的执行队列中。当 <code>executor</code> 开始执行的时候就可以从队列中接收 <code>task</code>，驱动 <code>task</code> 的执行了。</p>
 <h2 id="创建-spawner--executor"><a class="header" href="#创建-spawner--executor">创建 Spawner &amp; Executor</a></h2>
@@ -2722,8 +2567,7 @@ pub struct Spawner {
     let spawner = Spawner::new(task_sender);
     let executor = Executor::new(task_queue);
     (spawner, executor)
-}
-</code></pre>
+}</code></pre>
 <p>在 <code>spawner_and_executor</code> 函数中，我们使用 <code>crossbeam-channel</code> 提供的 <code>unbounded</code> 函数创建一个容量为 10000 的管道，分别返回管道的发送端和接收端，然后创建 <code>Spawner</code> 和 <code>Executor</code> 实例并返回。</p>
 <blockquote>
 <p>源代码仓库地址：<a href="https://github.com/night-cruise/async-runtime">https://github.com/night-cruise/async-runtime</a></p>
@@ -2736,8 +2580,7 @@ use std::io::Write;
 use log::info;
 
 use async_runtime::async_io::{Ipv4Addr, TcpListener, TcpStream};
-use async_runtime::executor::{spawner_and_executor, Spawner};
-</code></pre>
+use async_runtime::executor::{spawner_and_executor, Spawner};</code></pre>
 <h2 id="日志打印"><a class="header" href="#日志打印">日志打印</a></h2>
 <pre><code class="language-rust noplayground">fn init_log() {
     // format = [file:line] msg
@@ -2753,8 +2596,7 @@ use async_runtime::executor::{spawner_and_executor, Spawner};
             )
         })
         .init();
-}
-</code></pre>
+}</code></pre>
 <p><code>init_log</code> 函数是为了设置日志打印的消息格式，这跟异步运行时的使用没啥关系，这里就不再赘述了。</p>
 <h2 id="handle_client"><a class="header" href="#handle_client">handle_client</a></h2>
 <pre><code class="language-async">async fn handle_client(stream: TcpStream) {
@@ -2804,8 +2646,7 @@ use async_runtime::executor::{spawner_and_executor, Spawner};
         let stream = stream.unwrap();
         spawner.spawn(handle_client(stream));
     }
-}
-</code></pre>
+}</code></pre>
 <p>在 <code>server_loop</code> 函数中，我们调用 <code>TcpListener</code> 的 <code>bind</code> 方法创建一个 <code>TcpListener</code> 实例，然后调用 <code>incoming</code> 方法创建一个 <code>Incoming</code> 实例。</p>
 <p>接着，在 <code>While let</code> 循环中，调用 <code>incoming</code> 的 <code>next</code> 方法返回一个 <code>AcceptFuture</code> 实例，在 <code>AcceptFuture</code> 上调用 <code>await</code> 方法后，如果返回的 <code>Poll::Pending</code>，则挂起当前的 <code>task</code>。</p>
 <p>当有客户端连接到来时，<code>AcceptFuture</code> 等待的 IO 事件就绪，会返回 <code>io::Readult&lt;TcpStream&gt;</code> 的实例并绑定到 <code>stream</code> 变量上，接着使用 <code>spawner</code> 调用 <code>spawn</code> 方法创建一个 <code>task</code> 处理与客户端的交互。</p>
@@ -2819,8 +2660,7 @@ use async_runtime::executor::{spawner_and_executor, Spawner};
     spawner.spawn(server_loop(spawner.clone()));
 
     executor.run();
-}
-</code></pre>
+}</code></pre>
 <p>在 <code>main</code> 函数中，我们首先调用 <code>init_log</code> 函数设置日志消息格式，接着使用 <code>spawner_and_executor</code> 函数创建 <code>Spawner</code> 和 <code>Executor</code> 的实例。</p>
 <p>然后调用 <code>spawner.spawn</code> 方法创建一个 <code>task</code> 用于执行 <code>server_loop</code>。</p>
 <p>最后调用 <code>executor.run()</code> 方法开启 <code>executor</code> 的运行，开始调度执行各个 <code>task</code>。</p>
@@ -2831,8 +2671,7 @@ use async_runtime::executor::{spawner_and_executor, Spawner};
      Running `target/debug/examples/echo_server`
 [src/async_io.rs: 56] (TcpListener) listen: 3
 [src/reactor.rs: 27] (Reactor) add event: 3
-[src/reactor.rs: 35] Start reactor main loop
-</code></pre>
+[src/reactor.rs: 35] Start reactor main loop</code></pre>
 <p>使用 <code>Python</code> 写一个小脚本模拟 <code>TCP</code> 客户端：</p>
 <pre><code class="language-python">import socket
 import threading
@@ -2911,25 +2750,41 @@ RECEIVE DATA: 'HELLO WORLD[1016]' in THREAD[Thread-7]
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 
-        <script type="text/javascript">
+        <script>
             window.playground_copyable = true;
         </script>
 
 
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
 
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
 
-        <script type="text/javascript">
+        <script>
         window.addEventListener('load', function() {
             window.setTimeout(window.print, 100);
         });

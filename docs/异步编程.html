@@ -8,7 +8,6 @@
 
         <!-- Custom HTML head -->
         
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="A book which aims to introduce the theory and mechanism of async/await syntax and async runtime in the Rust.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -34,13 +33,13 @@
     </head>
     <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -56,7 +55,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -68,7 +67,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -99,7 +98,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -135,7 +134,7 @@
                 </div>
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -149,36 +148,7 @@
 <p>为了避免歧义，本书中的异步编程特指在 Rust 中使用 <code>async/await</code> 关键字进行编写异步代码。</p>
 <p>通过 <code>async</code> 关键字创建的异步函数或者异步块会返回一个实现了 <code>Future</code> trait 的类型，其本质上是一个协程对象。将 <code>async/await</code> 关键字和异步运行时结合使用就可以实现对多个协程对象的调度执行，从而达到并发执行的效果。</p>
 <p>在 Rust 中主要应用的是 进程—线程—协程 异步模型，如下所示：</p>
-<pre><code>    +------------------------------------------------------------------+
-    |                                                                  |
-    |    +--------------------------------------------------------+    |
-    |    |                                                        |    |
-    |    |   +-------------------------------------------------+  |    |
-    |    |   | +------------+ +----------+ +--------------+    |  |    |
-    |    |   | | coroutine  | | coroutine| |  coroutine   |    |  |    |
-    |    |   + +------------+ +----------+ +--------------+    |  |    |
-    |    |   |                                                 |  |    |
-    |    |   +-------------------------------------------------+  |    |
-    |    |                                                        |    |
-    |    | thread                                                 |    |
-    |    +--------------------------------------------------------+    |
-    |                                                                  |
-    |                                                                  |
-    |    +--------------------------------------------------------+    |
-    |    |                                                        |    |
-    |    |   +-------------------------------------------------+  |    |
-    |    |   | +------------+ +----------+ +--------------+    |  |    |
-    |    |   | | coroutine  | | coroutine| |  coroutine   |    |  |    |
-    |    |   + +------------+ +----------+ +--------------+    |  |    |
-    |    |   |                                                 |  |    |
-    |    |   +-------------------------------------------------+  |    |
-    |    |                                                        |    |
-    |    | thread                                                 |    |
-    |    +--------------------------------------------------------+    |
-    |                                                                  |
-    | process                                                          |
-    +------------------------------------------------------------------+
-</code></pre>
+<p><img src="imgs/async-model.png" alt="" /></p>
 <p>下层是进程，进程是持有资源的最小单位；中层是线程，线程不持有资源，是<code>CPU</code>调度的最小单位；上层是协程，协程既不持有资源、也不在意<code>CPU</code>的调度，它仅仅关注的是“协作式的、自然的流程切换”。</p>
 <p>异步运行时就负责调度执行上述的协程对象。例如在一个协程在等待 IO 时，这个协程会主动出让自己的执行权给异步运行时，这时异步运行时可以调度运行其他的协程，从而最大化地利用CPU时间片。在 IO 密集型的应用中，异步编程将能够极大地提高执行效率。</p>
 
@@ -211,21 +181,37 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 
-        <script type="text/javascript">
+        <script>
             window.playground_copyable = true;
         </script>
 
 
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
 
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
 

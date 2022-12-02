@@ -1,6 +1,6 @@
 # reactor
 
-## Reactor 抽象
+## Reactor
 
 ```rust,noplayground
 pub(crate) struct Reactor {
