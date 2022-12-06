@@ -1565,6 +1565,7 @@ struct epoll_event {
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="epoll-server-example"><a class="header" href="#epoll-server-example">Epoll server example</a></h1>
 <p>在本节中，我们将会编写一个简单的 <code>epoll server</code>，来看一下 <code>epoll</code> 是如何工作的。<a href="https://crates.io/crates/libc">libc crate</a> 中提供了与 <code>epoll</code> 相关的系统调用，因此这个小项目需要添加 <code>libc crate</code> 依赖。 </p>
+<p>源代码的仓库地址：<a href="https://github.com/night-cruise/rust-epoll-example">rust epoll example</a>。</p>
 <h2 id="epoll-调用宏"><a class="header" href="#epoll-调用宏">epoll 调用宏</a></h2>
 <p>为了方便地调用 <code>epoll</code> 相关的 <code>api</code>，我们可以编写如下所示的宏：</p>
 <pre><code class="language-rust noplayground">#[macro_export]
@@ -1927,7 +1928,7 @@ fn main() -&gt; io::Result&lt;()&gt; {
     }
 }</code></pre>
 <p><code>HTTP</code> 协议是无状态的，我们在完整处理一次请求后就删除对应的请求上下文，当客户端再次发起请求时会建立新的连接，创建新的请求上下文。</p>
-<p>至此，<code>epoll server</code> 编写完毕，源代码的仓库地址：<a href="https://github.com/night-cruise/rust-epoll-example">rust epoll example</a>。</p>
+<p>至此，<code>epoll server</code> 编写完毕。</p>
 <h2 id="运行-server"><a class="header" href="#运行-server">运行 server</a></h2>
 <p>使用 <code>cargo run</code> 启动 <code>server</code>，然后这个 <code>server</code> 会监听地址：<a href="http://127.0.0.1:8000/">http://127.0.0.1:8000</a> 。</p>
 <p>为了测试 <code>server</code>，编写一个 <code>Python</code> 小脚本，使用多线程循环发送 <code>HTTP</code> 请求：</p>
@@ -1990,6 +1991,7 @@ answered from request 195
 <p>正如我们所看到的那样，<code>server</code> 在同时处理多个请求！</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="异步运行时"><a class="header" href="#异步运行时">异步运行时</a></h1>
 <p>在前面的章节中，我们讲到过异步运行时负责调度执行使用者创建的 <code>Future</code>，那么异步运行时到底是如何工作的呢？在本章中，我们将会实现一个简单的单线程异步运行时，提供异步的网络IO读写操作，以探讨运行时的具体工作机制。</p>
+<p>本章节的源代码仓库地址：<a href="https://github.com/night-cruise/async-runtime">async-runtime</a>。</p>
 <p>在正式开始之前，我们首先明确一下即将实现的运行时的工作原理：</p>
 <p><img src="imgs/async-runtime.png" alt="" /></p>
 <ol>
@@ -2558,9 +2560,6 @@ pub struct Spawner {
     (spawner, executor)
 }</code></pre>
 <p>在 <code>spawner_and_executor</code> 函数中，我们使用 <code>crossbeam-channel</code> 提供的 <code>unbounded</code> 函数创建一个容量为 10000 的管道，分别返回管道的发送端和接收端，然后创建 <code>Spawner</code> 和 <code>Executor</code> 实例并返回。</p>
-<blockquote>
-<p>源代码仓库地址：<a href="https://github.com/night-cruise/async-runtime">https://github.com/night-cruise/async-runtime</a></p>
-</blockquote>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="example"><a class="header" href="#example">example</a></h1>
 <p>在这一节中，我们将使用之前实现的异步运行时创建一个 <code>tcp echo server</code>。需要导入的模块如下所示：</p>
 <pre><code class="language-rust noplayground">use std::env;

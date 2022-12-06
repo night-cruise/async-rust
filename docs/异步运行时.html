@@ -146,6 +146,7 @@
                     <main>
                         <h1 id="异步运行时"><a class="header" href="#异步运行时">异步运行时</a></h1>
 <p>在前面的章节中，我们讲到过异步运行时负责调度执行使用者创建的 <code>Future</code>，那么异步运行时到底是如何工作的呢？在本章中，我们将会实现一个简单的单线程异步运行时，提供异步的网络IO读写操作，以探讨运行时的具体工作机制。</p>
+<p>本章节的源代码仓库地址：<a href="https://github.com/night-cruise/async-runtime">async-runtime</a>。</p>
 <p>在正式开始之前，我们首先明确一下即将实现的运行时的工作原理：</p>
 <p><img src="imgs/async-runtime.png" alt="" /></p>
 <ol>

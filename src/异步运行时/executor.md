@@ -120,5 +120,3 @@ pub fn spawner_and_executor() -> (Spawner, Executor) {
 ```
 
 在 `spawner_and_executor` 函数中，我们使用 `crossbeam-channel` 提供的 `unbounded` 函数创建一个容量为 10000 的管道，分别返回管道的发送端和接收端，然后创建 `Spawner` 和 `Executor` 实例并返回。
-
-> 源代码仓库地址：<https://github.com/night-cruise/async-runtime>

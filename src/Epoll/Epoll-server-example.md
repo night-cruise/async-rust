@@ -2,6 +2,8 @@
 
 在本节中，我们将会编写一个简单的 `epoll server`，来看一下 `epoll` 是如何工作的。[libc crate](https://crates.io/crates/libc) 中提供了与 `epoll` 相关的系统调用，因此这个小项目需要添加 `libc crate` 依赖。 
 
+源代码的仓库地址：[rust epoll example](https://github.com/night-cruise/rust-epoll-example)。
+
 ## epoll 调用宏
 
 为了方便地调用 `epoll` 相关的 `api`，我们可以编写如下所示的宏：
@@ -444,7 +446,7 @@ fn main() -> io::Result<()> {
 
 `HTTP` 协议是无状态的，我们在完整处理一次请求后就删除对应的请求上下文，当客户端再次发起请求时会建立新的连接，创建新的请求上下文。
 
-至此，`epoll server` 编写完毕，源代码的仓库地址：[rust epoll example](https://github.com/night-cruise/rust-epoll-example)。
+至此，`epoll server` 编写完毕。
 
 ## 运行 server
 
